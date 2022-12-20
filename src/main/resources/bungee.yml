@@ -1,0 +1,4 @@
+name: SpigotPie
+version: '${project.version}'
+main: top.jingwenmc.spigotpie.bungee.SpigotPieBungee
+description: Utilities For Spigot and BungeeCord
