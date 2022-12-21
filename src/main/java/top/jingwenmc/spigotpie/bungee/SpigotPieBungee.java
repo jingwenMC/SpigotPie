@@ -1,23 +1,26 @@
 package top.jingwenmc.spigotpie.bungee;
 
-import lombok.Getter;
 import net.md_5.bungee.api.plugin.Plugin;
 import top.jingwenmc.spigotpie.common.PieEnvironment;
 import top.jingwenmc.spigotpie.common.SpigotPie;
 
 public final class SpigotPieBungee extends Plugin {
-    @Getter
-    private static SpigotPie instance;
-
     @Override
-    public void onEnable() {
-        instance = SpigotPie.loadPlugin(
-                PieEnvironment.builder()
-                        .bungeeCord(true)
-                        .logger(getLogger())
-                        .build());
+    public void onLoad() {
+        try {
+            SpigotPie.loadPlugin(
+                    PieEnvironment.builder()
+                            .bungeeCord(true)
+                            .asDedicatePlugin(true)
+                            .logger(getLogger())
+                            .build());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         // Plugin startup logic
     }
+
+
 
     @Override
     public void onDisable() {

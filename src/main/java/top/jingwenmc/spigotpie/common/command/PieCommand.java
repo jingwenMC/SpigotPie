@@ -3,29 +3,30 @@ package top.jingwenmc.spigotpie.common.command;
 import java.lang.annotation.*;
 
 /**
- * Represent a BaseCommand
+ * Represent a PieCommand
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface BaseCommand {
+public @interface PieCommand {
     /**
      * Key of command
+     * Use space bar to specific sub commands
      */
     String value();
 
     /**
      * Aliases of the command
      */
-    String[] aliases();
+    String[] aliases() default "";
 
     /**
      * Description of the command
      */
-    String description();
+    String description() default "";
 
     /**
      * Permission needed to perform this command
      */
-    String permission();
+    String permission() default "";
 }
