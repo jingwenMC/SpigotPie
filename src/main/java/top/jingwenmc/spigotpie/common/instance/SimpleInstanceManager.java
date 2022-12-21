@@ -1,6 +1,7 @@
 package top.jingwenmc.spigotpie.common.instance;
 
 import org.jetbrains.annotations.Nullable;
+import top.jingwenmc.spigotpie.common.SpigotPie;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +30,7 @@ public class SimpleInstanceManager {
     private static void loadClassByPath(String root, String path, List<Class<?>> list, ClassLoader load) {
         File f = new File(path);
         if(root==null) root = f.getPath();
-        if (f.isFile() && f.getName().matches("^.*\\.class$")&&f.getPath().contains("base")) {
+        if (f.isFile() && f.getName().matches("^.*\\.class$")) {
             try {
                 String classPath = f.getPath();
                 String className = classPath.substring(root.length()+1,classPath.length()-6).replace('/','.').replace('\\','.');
@@ -51,31 +52,34 @@ public class SimpleInstanceManager {
      */
     public static void init() throws Exception {
         if(init)return;
-        for (Class<?> clazz : scanClassByClassLoader(Thread.currentThread().getContextClassLoader())) {
+        for (Class<?> clazz : scanClassByClassLoader(SpigotPie.class.getClassLoader())) {
             if(clazz == null)continue;
             if(clazz.isAnnotationPresent(PieComponent.class)) {
                 //管理实例
                 Object o = clazz.getConstructor().newInstance();
                 instanceMap.put(clazz.getName(),o);
-                //注入字段
-                for(Field f : injectionMap.keySet()) {
+                //直接注入字段
+                for(Field f : o.getClass().getDeclaredFields()) {
                     if(f.isAnnotationPresent(Wire.class)) {
                         String required = f.getType().getName();
                         if(instanceMap.containsKey(required)) {
-                            f.set(o,instanceMap.get(required));
-                            injectionMap.remove(f);
-                        }
-                    }
-                }
-                for(Field f : o.getClass().getFields()) {
-                    if(f.isAnnotationPresent(Wire.class)) {
-                        String required = f.getType().getName();
-                        if(instanceMap.containsKey(required)) {
+                            f.setAccessible(true);
                             f.set(o,instanceMap.get(required));
                         } else {
                             injectionMap.put(f,o);
                         }
                     }
+                }
+            }
+        }
+        //注入后加载的字段
+        for(Field f : injectionMap.keySet()) {
+            if(f.isAnnotationPresent(Wire.class)) {
+                String required = f.getType().getName();
+                if(instanceMap.containsKey(required)) {
+                    f.setAccessible(true);
+                    f.set(injectionMap.get(f),instanceMap.get(required));
+                    injectionMap.remove(f);
                 }
             }
         }
@@ -103,5 +107,15 @@ public class SimpleInstanceManager {
     @Nullable
     public static Object getDeclaredInstance(String name) {
         return instanceMap.get(name);
+    }
+
+    /**
+     * Get declared instance
+     * @param clazz Class
+     * @return The instance. Not found -> null.
+     */
+    @Nullable
+    public static Object getDeclaredInstance(Class<?> clazz) {
+        return instanceMap.get(clazz.getName());
     }
 }
