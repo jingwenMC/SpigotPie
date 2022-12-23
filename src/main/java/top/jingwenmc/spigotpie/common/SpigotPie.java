@@ -19,6 +19,7 @@ public class SpigotPie {
         if(!environment.isAsDedicatePlugin() && SpigotPie.class.getName().startsWith(new String(packageName))) {
             environment.getLogger().log(Level.OFF,"Failed to load Spigot Pie.");
             environment.getLogger().log(Level.OFF,"Spigot Pie加载失败.");
+            environment.getLogger().log(Level.OFF,"可能的原因: 潜在的包名冲突");
             environment.getLogger().log(Level.OFF,"Reason: Possible Package Conflict");
             throw new IllegalStateException("Developer notice: ensure to use relocation while not using plugin mode!");
         }
