@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 public class CommandProcessor implements PreProcessor {
     @Override
     @Accepts(PieCommand.class)
-    public void process(Object o, Method m) {
+    public void preProcess(Object o, Method m) {
         PieCommand pieCommand = m.getAnnotation(PieCommand.class);
 
     }
