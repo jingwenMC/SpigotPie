@@ -5,8 +5,26 @@ import top.jingwenmc.spigotpie.common.PieEnvironment;
 import top.jingwenmc.spigotpie.common.SpigotPie;
 
 public final class SpigotPieBungee extends Plugin {
+
+    public static Plugin pluginInstance = null;
+
+    public static void inject(Plugin plugin) {
+        pluginInstance = plugin;
+        try {
+            SpigotPie.loadPlugin(
+                    PieEnvironment.builder()
+                            .bungeeCord(true)
+                            .asDedicatePlugin(false)
+                            .logger(plugin.getLogger())
+                            .build());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void onLoad() {
+        pluginInstance = this;
         try {
             SpigotPie.loadPlugin(
                     PieEnvironment.builder()

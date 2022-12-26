@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 @Builder
 public class PieEnvironment {
     private boolean bungeeCord = false;
-
     private boolean asDedicatePlugin = false;
     private Logger logger = null;
 

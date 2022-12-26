@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 /**
  * Represent a PieCommand
  */
-@Target(ElementType.TYPE)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface PieCommand {

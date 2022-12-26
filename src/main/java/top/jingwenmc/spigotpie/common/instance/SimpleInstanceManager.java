@@ -5,7 +5,11 @@ import top.jingwenmc.spigotpie.common.SpigotPie;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,7 +22,6 @@ public class SimpleInstanceManager {
         List<Class<?>> classes = new ArrayList<>();
         while (urlEnumeration.hasMoreElements()) {
             URL url = urlEnumeration.nextElement();
-            //文件类型（其实是文件夹）
             if (url.getProtocol().equals("file")) {
                 loadClassByPath(null, url.getPath(), classes, cl);
             }
@@ -46,7 +49,7 @@ public class SimpleInstanceManager {
         }
     }
 
-    public static void injectInstances(Class<?> required,@Nullable Class<?> from) throws Exception {
+    private static void injectInstances(Class<?> required,@Nullable Class<?> from) throws Exception {
         if(!required.isAnnotationPresent(PieComponent.class))return;
         if(from!=null && !from.isAnnotationPresent(PieComponent.class))return;
         Object o = instanceMap.get(required.getName());
@@ -86,6 +89,40 @@ public class SimpleInstanceManager {
             if(clazz == null)continue;
             if(clazz.isAnnotationPresent(PieComponent.class)) {
                 injectInstances(clazz,null);
+            }
+        }
+        //PreProcessor
+        for(Object o : instanceMap.values()) {
+            Class<?> clazz = o.getClass();
+            if (Arrays.asList(clazz.getInterfaces()).contains(PreProcessor.class)) {
+                Method m = clazz.getDeclaredMethod("process",Object.class);
+                if(m.isAnnotationPresent(Accepts.class)) {
+                    Class<? extends Annotation> annoClass = m.getAnnotation(Accepts.class).value();
+                    ElementType[] types = annoClass.getAnnotation(Target.class).value();
+                    if(types.length>1)throw new MultiTargetException("Only one target is supported");
+                    ElementType type = types[0];
+                    if(!type.equals(ElementType.TYPE))throw new UnsupportedTargetException("Exception during PreProcess: Expecting ElementType.TYPE, got "+type);
+                    for(Object o2 : instanceMap.values()) {
+                        if(o2.getClass().isAnnotationPresent(annoClass)) {
+                            m.invoke(o,o2);
+                        }
+                    }
+                }
+                Method m1 = clazz.getDeclaredMethod("process",Object.class,Method.class);
+                if(m1.isAnnotationPresent(Accepts.class)) {
+                    Class<? extends Annotation> annoClass = m.getAnnotation(Accepts.class).value();
+                    ElementType[] types = annoClass.getAnnotation(Target.class).value();
+                    if(types.length>1)throw new MultiTargetException("Only one target is supported");
+                    ElementType type = types[0];
+                    if(!type.equals(ElementType.METHOD))throw new UnsupportedTargetException("Exception during PreProcess: Expecting ElementType.METHOD, got "+type);
+                    for(Object o2 : instanceMap.values()) {
+                        for(Method m2 : o2.getClass().getMethods()) {
+                            if(m2.getClass().isAnnotationPresent(annoClass)) {
+                                m1.invoke(o,o2,m2);
+                            }
+                        }
+                    }
+                }
             }
         }
         init = true;

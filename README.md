@@ -10,3 +10,5 @@
 - 简易的实例管理（类似Spring Bean） - 完成
 - 简易的字段注入 - 完成
 - 各种开发辅助工具
+
+Inject - PreLoad - Load( - PreProcess) - Runtime
