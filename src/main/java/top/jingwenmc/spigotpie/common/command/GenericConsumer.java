@@ -22,6 +22,11 @@ public class GenericConsumer implements Consumer<CommandItem> {
         types = new ArrayList<>();
         boolean first = false;
         int leastRequired = 0;
+        if(m.getParameterTypes().length == 1 && m.getParameterTypes()[0].getName().equalsIgnoreCase(SupportedTypes.COMMAND_ITEM)) {
+            //Using raw CommandItem
+            this.leastRequired = -1;
+            return;
+        }
         for(Class<?> c : m.getParameterTypes()){
             if(!first) {
                 if(!Objects.equals(c.getName(),SupportedTypes.COMMAND_SENDER)) {
@@ -43,6 +48,10 @@ public class GenericConsumer implements Consumer<CommandItem> {
     @SneakyThrows
     @Override
     public void accept(CommandItem commandItem) {
+        if(leastRequired == -1) {
+            targetMethod.invoke(targetObject,commandItem);
+            return;
+        }
         int length = commandItem.getArgs().length;
         if(length<leastRequired){
             commandItem.getSender().sendMessage(ChatColor.RED+"指令的参数不足！至少需要"+leastRequired+"个参数！");
@@ -64,6 +73,7 @@ public class GenericConsumer implements Consumer<CommandItem> {
     static class SupportedTypes {
         public static final String COMMAND_SENDER = CommandSender.class.getName();
         public static final String STRING = String.class.getName();
+        public static final String COMMAND_ITEM = CommandItem.class.getName();
 
         //future: add more support type & check type
     }
