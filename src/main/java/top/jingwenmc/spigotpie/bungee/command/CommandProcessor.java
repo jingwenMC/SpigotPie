@@ -13,6 +13,8 @@ public class CommandProcessor implements PreProcessor {
     @Accepts(PieCommand.class)
     public void preProcess(Object o, Method m) {
         PieCommand pieCommand = m.getAnnotation(PieCommand.class);
+        if(pieCommand.bungeeCord()) {
 
+        }
     }
 }

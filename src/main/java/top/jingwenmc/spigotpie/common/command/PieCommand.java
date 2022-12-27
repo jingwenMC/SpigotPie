@@ -29,4 +29,8 @@ public @interface PieCommand {
      * Permission needed to perform this command
      */
     String permission() default "";
+
+    boolean bungeeCord();
+
+    boolean spigot();
 }
