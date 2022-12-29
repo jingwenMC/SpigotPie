@@ -62,6 +62,12 @@ public class SimpleInstanceManager {
                     Class<? extends org.bukkit.plugin.java.JavaPlugin> clazz2 = (Class<? extends org.bukkit.plugin.java.JavaPlugin>) clazz;
                     instanceMap.put(clazz.getName(), org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));
                 }
+                if(SpigotPie.getEnvironment().isBungeeCord() && clazz.getSuperclass().equals(net.md_5.bungee.api.plugin.Plugin.class)) {
+                    Class<? extends net.md_5.bungee.api.plugin.Plugin> clazz2 = (Class<? extends net.md_5.bungee.api.plugin.Plugin>) clazz;
+                    for(net.md_5.bungee.api.plugin.Plugin p : net.md_5.bungee.api.ProxyServer.getInstance().getPluginManager().getPlugins()) {
+                        if(p.getClass().equals(clazz2)) instanceMap.put(clazz.getName(), p);
+                    }
+                }
                 //管理实例
                 Object o = !instanceMap.containsKey(clazz.getName()) ? clazz.getConstructor().newInstance():instanceMap.get(clazz.getName());
                 if(!instanceMap.containsKey(clazz.getName()))instanceMap.put(clazz.getName(),o);
