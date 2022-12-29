@@ -8,7 +8,7 @@ import lombok.Getter;
 public abstract class CommandSender {
     private String name;
 
-    public abstract boolean hasPermission();
+    public abstract boolean hasPermission(String permission);
 
     public abstract void sendMessage(String message);
 }
