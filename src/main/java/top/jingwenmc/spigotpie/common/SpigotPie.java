@@ -10,7 +10,6 @@ public class SpigotPie {
     @Getter
     private static PieEnvironment environment;
 
-
     public static void loadPlugin(PieEnvironment environment) {
         SpigotPie.environment = environment;
         environment.getLogger().info("Starting Library Spigot Pie...");

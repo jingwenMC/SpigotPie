@@ -6,7 +6,7 @@ import top.jingwenmc.spigotpie.common.SpigotPie;
 
 public final class SpigotPieBungee extends Plugin {
 
-    public static Plugin pluginInstance = null;
+    private static Plugin pluginInstance = null;
 
     public static void inject(Plugin plugin) {
         pluginInstance = plugin;
@@ -20,6 +20,11 @@ public final class SpigotPieBungee extends Plugin {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        postLoad();
+    }
+
+    public static void postLoad() {
+
     }
 
     @Override
@@ -38,7 +43,10 @@ public final class SpigotPieBungee extends Plugin {
         // Plugin startup logic
     }
 
-
+    @Override
+    public void onEnable() {
+        postLoad();
+    }
 
     @Override
     public void onDisable() {

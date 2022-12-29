@@ -4,7 +4,6 @@ import top.jingwenmc.spigotpie.common.command.CommandItem;
 import top.jingwenmc.spigotpie.common.command.CommandTreeNode;
 import top.jingwenmc.spigotpie.common.instance.PieComponent;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 @PieComponent

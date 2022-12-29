@@ -59,23 +59,32 @@ public class CommandTreeNode {
         }
     }
 
-    public CommandTreeNode getCommandNode(String path) {
-        ArrayList<String> paths = new ArrayList<>(Arrays.asList(path.split(" ")));
+    public CommandTreeNode getCommandNode(CommandTreeNode requestBy, String[] args) {
+        ArrayList<String> paths = new ArrayList<>(Arrays.asList(args));
         if(paths.size() == 0) {
-            return null;
-        }
-        if(paths.size() == 1) {
-            return treeMap.get(paths.get(0));
+            return requestBy;
         }
         String sub = paths.get(0);
         paths.remove(0);
-        StringJoiner sj = new StringJoiner(" ");
-        for (String s : paths) {
-            sj.add(s);
-        }
         CommandTreeNode node = treeMap.get(sub);
-        if(node == null)return null;
-        return getCommandNode(sj.toString());
+        if(node == null) {
+            return requestBy;
+        }
+        return node.getCommandNode(this,paths.toArray(new String[0]));
+    }
+
+    public String[] parseArgs(String[] args) {
+        ArrayList<String> paths = new ArrayList<>(Arrays.asList(args));
+        if(paths.size() == 0) {
+            return paths.toArray(new String[0]);
+        }
+        String sub = paths.get(0);
+        paths.remove(0);
+        CommandTreeNode node = treeMap.get(sub);
+        if(node == null) {
+            return args;
+        }
+        return node.parseArgs(paths.toArray(new String[0]));
     }
 
     public static final String ROOT_NODE_PATH = "::pie-root::";
