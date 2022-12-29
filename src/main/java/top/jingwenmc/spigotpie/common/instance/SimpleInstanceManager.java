@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SimpleInstanceManager {
     private static final Map<String,Object> instanceMap = new ConcurrentHashMap<>();
+    public static final Map<Field,Object> injectionMap = new ConcurrentHashMap<>();
     private static boolean init = false;
     public static List<Class<?>> scanClassByClassLoader(ClassLoader cl) throws IOException {
         Enumeration<URL> urlEnumeration = cl.getResources("");
@@ -49,37 +50,6 @@ public class SimpleInstanceManager {
         }
     }
 
-    private static void injectInstances(Class<?> required,@Nullable Class<?> from) throws Exception {
-        if(!required.isAnnotationPresent(PieComponent.class))return;
-        if(from!=null && !from.isAnnotationPresent(PieComponent.class))return;
-        Object o = instanceMap.get(required.getName());
-        if(o == null) {
-            o = required.getConstructor().newInstance();
-            instanceMap.put(required.getName(),o);
-        }
-        for(Field f : required.getDeclaredFields()) {
-            if(f.isAnnotationPresent(Wire.class)) {
-                String instance = f.getType().getName();
-                if (from != null && instance.equalsIgnoreCase(from.getName()))
-                    throw new IllegalArgumentException("Spigot Pie loading error:" +
-                            "\nCircular reference: " +
-                            "\n" + from.getName() + " -> " + required.getName() + " -> " + instance + "\n" +
-                            "This type of Wiring is prohibited.");
-                if(required.getName().equalsIgnoreCase(instance)) {
-                    throw new IllegalArgumentException("Spigot Pie loading error:" +
-                            "\nCircular reference: " +
-                            "\n" + required.getName() + " -> " + instance + "\n" +
-                            "This type of Wiring is prohibited.");
-                }
-                if(!instanceMap.containsKey(instance)) {
-                    injectInstances(f.getType(),required);
-                }
-                f.setAccessible(true);
-                f.set(o,instanceMap.get(instance));
-            }
-        }
-    }
-
     /**
      * Call on start
      */
@@ -88,9 +58,52 @@ public class SimpleInstanceManager {
         for (Class<?> clazz : scanClassByClassLoader(SpigotPie.class.getClassLoader())) {
             if(clazz == null)continue;
             if(clazz.isAnnotationPresent(PieComponent.class)) {
-                injectInstances(clazz,null);
+                if(!SpigotPie.getEnvironment().isBungeeCord() && clazz.getSuperclass().equals(org.bukkit.plugin.java.JavaPlugin.class)) {
+                    Class<? extends org.bukkit.plugin.java.JavaPlugin> clazz2 = (Class<? extends org.bukkit.plugin.java.JavaPlugin>) clazz;
+                    instanceMap.put(clazz.getName(), org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));
+                }
+                //管理实例
+                Object o = !instanceMap.containsKey(clazz.getName()) ? clazz.getConstructor().newInstance():instanceMap.get(clazz.getName());
+                if(!instanceMap.containsKey(clazz.getName()))instanceMap.put(clazz.getName(),o);
+                //直接注入字段
+                for(Field f : o.getClass().getDeclaredFields()) {
+                    if(f.isAnnotationPresent(Wire.class)) {
+                        String required = f.getType().getName();
+                        if(instanceMap.containsKey(required)) {
+                            f.setAccessible(true);
+                            f.set(o,instanceMap.get(required));
+                        } else {
+                            injectionMap.put(f,o);
+                        }
+                    }
+                }
             }
         }
+        for(Field f : injectionMap.keySet()) {
+            if(f.isAnnotationPresent(Wire.class)) {
+                String required = f.getType().getName();
+                if(instanceMap.containsKey(required)) {
+                    f.setAccessible(true);
+                    f.set(injectionMap.get(f),instanceMap.get(required));
+                    injectionMap.remove(f);
+                }
+            }
+        }
+        if(!injectionMap.isEmpty()) {
+            System.err.println("Exception during Load:");
+            System.err.println("===============[Spigot Pie - Warning]===============");
+            System.err.println("[警告] 仍有以下声明的字段没有得到注入");
+            System.err.println("[WARN] Field didn't inject:");
+            for(Field f : injectionMap.keySet()) {
+                System.err.println("[Field]{"+f.getName()+"},[Require]{"+injectionMap.get(f)+"};");
+            }
+            System.err.println("[警告] 可能是因为尝试Wire不受管理的Class");
+            System.err.println("[WARN] Maybe tried to inject unmanaged class");
+            System.err.println("[警告] 将会保留默认值");
+            System.err.println("[WARN] Will stay default");
+            System.err.println("===============[Spigot Pie - Warning]===============");
+        }
+
         //PreProcessor
         for(Object o : instanceMap.values()) {
             Class<?> clazz = o.getClass();
