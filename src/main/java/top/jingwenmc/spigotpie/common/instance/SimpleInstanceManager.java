@@ -20,6 +20,7 @@ import java.util.jar.JarFile;
 
 public class SimpleInstanceManager {
     private static final Map<String,Object> instanceMap = new ConcurrentHashMap<>();
+    private static final Map<String,Class<?>> classMap = new ConcurrentHashMap<>();
     public static final Map<Field,Object> injectionMap = new ConcurrentHashMap<>();
     private static boolean init = false;
 
@@ -36,7 +37,9 @@ public class SimpleInstanceManager {
                             name = name.substring(0,name.length()-6);
                             name = name.replace('/','.').replace('\\','.');
                             try {
-                                classes.add(Class.forName(name));
+                                Class<?> clazz = Class.forName(name);
+                                classes.add(clazz);
+                                classMap.put(clazz.getName(),clazz);
                             }catch (ClassNotFoundException | NoClassDefFoundError e) {
                                 System.err.println("Class Not Found: "+name);
                                 System.err.println("Won't create instance for it.");
@@ -110,38 +113,44 @@ public class SimpleInstanceManager {
         }
 
         //PreProcessor
-        for(Object o : instanceMap.values()) {
-            Class<?> clazz = o.getClass();
-            if (Arrays.asList(clazz.getInterfaces()).contains(PreProcessor.class)) {
-                Method m = clazz.getDeclaredMethod("preProcess",Object.class);
-                if(m.isAnnotationPresent(Accepts.class)) {
-                    Class<? extends Annotation> annoClass = m.getAnnotation(Accepts.class).value();
-                    ElementType[] types = annoClass.getAnnotation(Target.class).value();
-                    if(types.length>1)throw new MultiTargetException("Only one target is supported");
-                    ElementType type = types[0];
-                    if(!type.equals(ElementType.TYPE))throw new UnsupportedTargetException("Exception during PreProcess: Expecting ElementType.TYPE, got "+type);
-                    for(Object o2 : instanceMap.values()) {
-                        if(o2.getClass().isAnnotationPresent(annoClass)) {
-                            m.invoke(o,o2);
+        try {
+            for (Object o : instanceMap.values()) {
+                Class<?> clazz = o.getClass();
+                if (Arrays.asList(clazz.getInterfaces()).contains(PreProcessor.class)) {
+                    Method m = clazz.getDeclaredMethod("preProcess", Object.class);
+                    if (m.isAnnotationPresent(Accepts.class)) {
+                        Class<? extends Annotation> annoClass = m.getDeclaredAnnotation(Accepts.class).value();
+                        ElementType[] types = annoClass.getDeclaredAnnotation(Target.class).value();
+                        if (types.length > 1) throw new MultiTargetException("Only one target is supported");
+                        ElementType type = types[0];
+                        if (!type.equals(ElementType.TYPE))
+                            throw new UnsupportedTargetException("Expecting ElementType.TYPE, got " + type);
+                        for (Object o2 : instanceMap.values()) {
+                            if (o2.getClass().isAnnotationPresent(annoClass)) {
+                                m.invoke(o, o2);
+                            }
                         }
                     }
-                }
-                Method m1 = clazz.getDeclaredMethod("preProcess",Object.class,Method.class);
-                if(m1.isAnnotationPresent(Accepts.class)) {
-                    Class<? extends Annotation> annoClass = m.getAnnotation(Accepts.class).value();
-                    ElementType[] types = annoClass.getAnnotation(Target.class).value();
-                    if(types.length>1)throw new MultiTargetException("Only one target is supported");
-                    ElementType type = types[0];
-                    if(!type.equals(ElementType.METHOD))throw new UnsupportedTargetException("Exception during PreProcess: Expecting ElementType.METHOD, got "+type);
-                    for(Object o2 : instanceMap.values()) {
-                        for(Method m2 : o2.getClass().getMethods()) {
-                            if(m2.getClass().isAnnotationPresent(annoClass)) {
-                                m1.invoke(o,o2,m2);
+                    Method m1 = clazz.getDeclaredMethod("preProcess", Object.class, Method.class);
+                    if (m1.isAnnotationPresent(Accepts.class)) {
+                        Class<? extends Annotation> annoClass = m.getDeclaredAnnotation(Accepts.class).value();
+                        ElementType[] types = annoClass.getDeclaredAnnotation(Target.class).value();
+                        if (types.length > 1) throw new MultiTargetException("Only one target is supported");
+                        ElementType type = types[0];
+                        if (!type.equals(ElementType.METHOD))
+                            throw new UnsupportedTargetException("Expecting ElementType.METHOD, got " + type);
+                        for (Object o2 : instanceMap.values()) {
+                            for (Method m2 : o2.getClass().getMethods()) {
+                                if (m2.getClass().isAnnotationPresent(annoClass)) {
+                                    m1.invoke(o, o2, m2);
+                                }
                             }
                         }
                     }
                 }
             }
+        }catch (Exception e) {
+            throw new RuntimeException("Exception during PreProcess: ",e);
         }
         init = true;
         for(String s : instanceMap.keySet()) {
