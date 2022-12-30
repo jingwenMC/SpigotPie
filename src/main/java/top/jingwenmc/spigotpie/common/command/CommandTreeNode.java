@@ -39,6 +39,12 @@ public class CommandTreeNode {
     }
 
     public void addCommandNode(String path,Consumer<CommandItem> consumer) {
+        if(path == null || path.isEmpty()) {
+            if(this.path.equalsIgnoreCase(ROOT_NODE_PATH)) {
+                throw new IllegalArgumentException("Illegal path append to root/manager node");
+            }
+            else return;
+        }
         ArrayList<String> paths = new ArrayList<>(Arrays.asList(path.split("\\s")));
         if(this.path.equalsIgnoreCase(ROOT_NODE_PATH)) {
             if(paths.size() == 0) {
