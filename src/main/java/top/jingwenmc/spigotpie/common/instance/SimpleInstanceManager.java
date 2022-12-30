@@ -35,7 +35,13 @@ public class SimpleInstanceManager {
                         if(name.endsWith(".class")) {
                             name = name.substring(0,name.length()-6);
                             name = name.replace('/','.').replace('\\','.');
-                            classes.add(Class.forName(name));
+                            try {
+                                classes.add(Class.forName(name));
+                            }catch (ClassNotFoundException | NoClassDefFoundError e) {
+                                System.err.println("Class Not Found: "+name);
+                                System.err.println("Won't create instance for it.");
+                            }
+
                         }
                     }
                 }
