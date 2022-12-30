@@ -16,10 +16,10 @@ public class SpigotPie {
         environment.getLogger().info("正在加载Spigot Pie运行库...");
         char[] packageName = new char[]{'t','o','p','.','j','i','n','g','w','e','n','m','c','.','s','p','i','g','o','t','p','i','e','.','c','o','m','m','o','n'};
         if(!environment.isAsDedicatePlugin() && SpigotPie.class.getName().startsWith(new String(packageName))) {
-            environment.getLogger().log(Level.OFF,"Failed to load Spigot Pie.");
-            environment.getLogger().log(Level.OFF,"Spigot Pie加载失败.");
-            environment.getLogger().log(Level.OFF,"可能的原因: 潜在的包名冲突");
-            environment.getLogger().log(Level.OFF,"Reason: Possible Package Conflict");
+            environment.getLogger().log(Level.SEVERE,"Failed to load Spigot Pie.");
+            environment.getLogger().log(Level.SEVERE,"Spigot Pie加载失败.");
+            environment.getLogger().log(Level.SEVERE,"可能的原因: 潜在的包名冲突");
+            environment.getLogger().log(Level.SEVERE,"Reason: Possible Package Conflict");
             throw new IllegalStateException("Exception during PreLoad: Developer notice: ensure to use relocation while not using plugin mode!");
         }
 
@@ -43,12 +43,12 @@ public class SpigotPie {
             environment.getLogger().info("Spigot Pie运行库加载完成!");
             environment.getLogger().info("Library Spigot Pie Load Complete!");
         } catch (Exception e) {
-            environment.getLogger().log(Level.OFF,"Failed to load Spigot Pie.");
-            environment.getLogger().log(Level.OFF,"Spigot Pie加载失败.");
-            environment.getLogger().log(Level.OFF,"Possible Reason: Programming error");
-            environment.getLogger().log(Level.OFF,"可能的原因: 程序错误");
-            environment.getLogger().log(Level.OFF,"Check 'Caused by:' to learn more");
-            environment.getLogger().log(Level.OFF,"查看'Caused by:'了解更多");
+            environment.getLogger().log(Level.SEVERE,"Failed to load Spigot Pie.");
+            environment.getLogger().log(Level.SEVERE,"Spigot Pie加载失败.");
+            environment.getLogger().log(Level.SEVERE,"Possible Reason: Programming error");
+            environment.getLogger().log(Level.SEVERE,"可能的原因: 程序错误");
+            environment.getLogger().log(Level.SEVERE,"Check 'Caused by:' to learn more");
+            environment.getLogger().log(Level.SEVERE,"查看'Caused by:'了解更多");
             throw new RuntimeException("Exception during Load: Unknown Exception",e);
         }
     }

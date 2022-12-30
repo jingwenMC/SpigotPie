@@ -18,11 +18,6 @@ public class CommandProcessor implements PreProcessor {
     @Wire
     CommandManager commandManager;
 
-    @Override
-    public void preProcess(Object o) {
-
-    }
-
     @SneakyThrows
     @Override
     @Accepts(PieCommand.class)

@@ -113,7 +113,7 @@ public class SimpleInstanceManager {
         for(Object o : instanceMap.values()) {
             Class<?> clazz = o.getClass();
             if (Arrays.asList(clazz.getInterfaces()).contains(PreProcessor.class)) {
-                Method m = clazz.getDeclaredMethod("process",Object.class);
+                Method m = clazz.getDeclaredMethod("preProcess",Object.class);
                 if(m.isAnnotationPresent(Accepts.class)) {
                     Class<? extends Annotation> annoClass = m.getAnnotation(Accepts.class).value();
                     ElementType[] types = annoClass.getAnnotation(Target.class).value();
@@ -126,7 +126,7 @@ public class SimpleInstanceManager {
                         }
                     }
                 }
-                Method m1 = clazz.getDeclaredMethod("process",Object.class,Method.class);
+                Method m1 = clazz.getDeclaredMethod("preProcess",Object.class,Method.class);
                 if(m1.isAnnotationPresent(Accepts.class)) {
                     Class<? extends Annotation> annoClass = m.getAnnotation(Accepts.class).value();
                     ElementType[] types = annoClass.getAnnotation(Target.class).value();
