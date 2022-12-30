@@ -110,6 +110,10 @@ public class SimpleInstanceManager {
             System.err.println("===============[Spigot Pie - Warning]===============");
         }
 
+        for(String s : instanceMap.keySet()) {
+            System.out.println("Loaded: "+s);
+        }
+
         //PreProcessor
         try {
             for (Object o : instanceMap.values()) {
@@ -151,9 +155,6 @@ public class SimpleInstanceManager {
             throw new RuntimeException("Exception during PreProcess: ",e);
         }
         init = true;
-        for(String s : instanceMap.keySet()) {
-            System.out.println("Loaded: "+s);
-        }
     }
 
     /**
