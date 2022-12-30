@@ -110,10 +110,6 @@ public class SimpleInstanceManager {
             System.err.println("===============[Spigot Pie - Warning]===============");
         }
 
-        for(String s : instanceMap.keySet()) {
-            System.out.println("Loaded: "+s);
-        }
-
         //PreProcessor
         try {
             for (Object o : instanceMap.values()) {
@@ -135,7 +131,7 @@ public class SimpleInstanceManager {
                     }
                     Method m1 = clazz.getDeclaredMethod("preProcess", Object.class, Method.class);
                     if (m1.isAnnotationPresent(Accepts.class)) {
-                        Class<? extends Annotation> annoClass = m.getDeclaredAnnotation(Accepts.class).value();
+                        Class<? extends Annotation> annoClass = m1.getDeclaredAnnotation(Accepts.class).value();
                         ElementType[] types = annoClass.getDeclaredAnnotation(Target.class).value();
                         if (types.length > 1) throw new MultiTargetException("Only one target is supported");
                         ElementType type = types[0];
