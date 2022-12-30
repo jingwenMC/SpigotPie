@@ -39,28 +39,27 @@ public class CommandTreeNode {
     }
 
     public void addCommandNode(String path,Consumer<CommandItem> consumer) {
-        ArrayList<String> paths = new ArrayList<>(Arrays.asList(path.split(" ")));
+        ArrayList<String> paths = new ArrayList<>(Arrays.asList(path.split("\\s")));
         if(this.path.equalsIgnoreCase(ROOT_NODE_PATH)) {
             if(paths.size() == 0) {
                 throw new IllegalArgumentException("Illegal path append to root/manager node");
             }
         }
-        if(paths.size()>0) {
-            String sub = paths.get(0);
-            paths.remove(0);
-            StringJoiner sj = new StringJoiner(" ");
-            for (String s : paths) {
-                sj.add(s);
-            }
-            CommandTreeNode node = treeMap.get(sub);
-            if(node == null) {
-                node = new CommandTreeNode(this,sub,commandItem -> commandItem.getSender().sendMessage(ChatColor.RED+"子指令未找到!请检查输入项目是否正确!")); //TODO: Localized message
-                treeMap.put(sub,node);
-            }
-            node.addCommandNode(sj.toString(),consumer);
-        } else {
-            this.consumer = consumer;
+        if(paths.size() == 0) {
+            return;
         }
+        String sub = paths.get(0);
+        paths.remove(0);
+        StringJoiner sj = new StringJoiner(" ");
+        for (String s : paths) {
+            sj.add(s);
+        }
+        CommandTreeNode node = treeMap.get(sub);
+        if(node == null) {
+            node = new CommandTreeNode(this,sub,commandItem -> commandItem.getSender().sendMessage(ChatColor.RED+"子指令未找到!请检查输入项目是否正确!")); //TODO: Localized message
+            treeMap.put(sub,node);
+        }
+        node.addCommandNode(sj.toString(),consumer);
     }
 
     public CommandTreeNode getCommandNode(CommandTreeNode requestBy, String[] args) {
