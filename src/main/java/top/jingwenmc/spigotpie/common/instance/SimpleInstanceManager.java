@@ -142,7 +142,7 @@ public class SimpleInstanceManager {
                             throw new UnsupportedTargetException("Expecting ElementType.METHOD, got " + type);
                         for (Object o2 : instanceMap.values()) {
                             for (Method m2 : o2.getClass().getMethods()) {
-                                if (m2.getClass().isAnnotationPresent(annoClass)) {
+                                if (m2.isAnnotationPresent(annoClass)) {
                                     m1.invoke(o, o2, m2);
                                 }
                             }
