@@ -56,10 +56,12 @@ public class GenericConsumer implements Consumer<CommandItem> {
         int length = commandItem.getArgs().length;
         if(length<leastRequired){
             commandItem.getSender().sendMessage(ChatColor.RED+"指令的参数不足！至少需要"+leastRequired+"个参数！");
+            return;
             //TODO:Localized message
         }
         if(length> methodParameters.size()){
             commandItem.getSender().sendMessage(ChatColor.RED+"指令的参数过多！最多需要"+length+"个参数！");
+            return;
             //TODO:Localized message
         }
         List<Object> parameters = new ArrayList<>();
