@@ -30,9 +30,7 @@ public class SpigotPie {
             SimpleInstanceManager.init();
             environment.getLogger().info("Managed instances load complete!");
             environment.getLogger().info("加载受管理的实例完成!");
-
-            environment.getLogger().info("========================================");
-            environment.getLogger().info("\n"+
+            environment.getLogger().info("========================================\n"+
             "   _____       _             __     ____  _    \n" +
             "  / ___/____  (_)___ _____  / /_   / __ \\(_)__ \n" +
             "  \\__ \\/ __ \\/ / __ `/ __ \\/ __/  / /_/ / / _ \\\n" +

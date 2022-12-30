@@ -13,6 +13,7 @@ import top.jingwenmc.spigotpie.common.command.CommandTreeNode;
 import top.jingwenmc.spigotpie.common.instance.SimpleInstanceManager;
 
 import java.lang.reflect.Field;
+import java.util.logging.Level;
 
 public class SpigotPieSpigot extends JavaPlugin {
 
@@ -55,6 +56,8 @@ public class SpigotPieSpigot extends JavaPlugin {
                 }
             });
         }
+        pluginInstance.getLogger().log(Level.INFO,"[Pie]Command(s) registered.");
+        pluginInstance.getLogger().log(Level.INFO,"[Pie]Total: "+commandManager.getAllCommands().length+" node(s)");
     }
 
     @Override
