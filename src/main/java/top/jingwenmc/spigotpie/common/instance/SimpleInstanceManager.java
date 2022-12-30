@@ -145,6 +145,9 @@ public class SimpleInstanceManager {
             }
         }
         init = true;
+        for(String s : instanceMap.keySet()) {
+            System.out.println("Loaded: "+s);
+        }
     }
 
     /**

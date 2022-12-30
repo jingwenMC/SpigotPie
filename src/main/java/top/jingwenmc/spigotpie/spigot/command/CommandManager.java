@@ -1,6 +1,5 @@
 package top.jingwenmc.spigotpie.spigot.command;
 
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.command.CommandSender;
 import top.jingwenmc.spigotpie.common.command.CommandItem;
 import top.jingwenmc.spigotpie.common.command.CommandTreeNode;
