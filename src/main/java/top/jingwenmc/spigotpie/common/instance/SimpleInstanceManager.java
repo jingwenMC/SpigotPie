@@ -2,10 +2,7 @@ package top.jingwenmc.spigotpie.common.instance;
 
 import org.jetbrains.annotations.Nullable;
 import top.jingwenmc.spigotpie.common.SpigotPie;
-import top.jingwenmc.spigotpie.spigot.SpigotPieSpigot;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
@@ -18,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+@SuppressWarnings("unchecked")
 public class SimpleInstanceManager {
     private static final Map<String,Object> instanceMap = new ConcurrentHashMap<>();
     private static final Map<String,Class<?>> classMap = new ConcurrentHashMap<>();
@@ -37,7 +35,7 @@ public class SimpleInstanceManager {
                             name = name.substring(0,name.length()-6);
                             name = name.replace('/','.').replace('\\','.');
                             try {
-                                Class<?> clazz = Class.forName(name);
+                                Class<?> clazz = cl.loadClass(name);
                                 classes.add(clazz);
                                 classMap.put(clazz.getName(),clazz);
                             }catch (ClassNotFoundException | NoClassDefFoundError e) {
