@@ -1,10 +1,16 @@
 package top.jingwenmc.spigotpie.spigot;
 
+import net.md_5.bungee.api.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import top.jingwenmc.spigotpie.spigot.command.CommandManager;
 import top.jingwenmc.spigotpie.common.PieEnvironment;
 import top.jingwenmc.spigotpie.common.SpigotPie;
+import top.jingwenmc.spigotpie.common.command.CommandTreeNode;
+import top.jingwenmc.spigotpie.common.instance.SimpleInstanceManager;
 
 import java.lang.reflect.Field;
 
@@ -33,7 +39,22 @@ public class SpigotPieSpigot extends JavaPlugin {
         Field commandMapField = SimplePluginManager.class.getDeclaredField("commandMap");
         commandMapField.setAccessible(true);
         commandMap = (SimpleCommandMap) commandMapField.get(pluginManager);
-
+        CommandManager commandManager = (CommandManager) SimpleInstanceManager.getDeclaredInstance(CommandManager.class);
+        assert commandManager != null;
+        for(String commandName : commandManager.getAllCommands()) {
+            commandMap.register("pie_"+pluginInstance.getName().toLowerCase(), new Command(commandName) {
+                @Override
+                public boolean execute(CommandSender sender, String commandLabel, String[] args) {
+                    CommandTreeNode node = commandManager.getNode(commandName,args);
+                    if(node.isRoot()) {
+                        sender.sendMessage(ChatColor.RED+"指令未找到!");//TODO: Localized Message
+                    } else {
+                        commandManager.invoke(sender,commandName,args);
+                    }
+                    return true;
+                }
+            });
+        }
     }
 
     @Override

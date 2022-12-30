@@ -1,7 +1,7 @@
-package top.jingwenmc.spigotpie.bungee.command;
+package top.jingwenmc.spigotpie.spigot.command;
 
-import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.command.CommandSender;
 import top.jingwenmc.spigotpie.common.command.CommandItem;
 import top.jingwenmc.spigotpie.common.command.CommandTreeNode;
 import top.jingwenmc.spigotpie.common.instance.PieComponent;
@@ -29,7 +29,7 @@ public class CommandManager {
         return root.getCommandNode(root,arrayList.toArray(new String[0]));
     }
 
-    public void invoke(CommandSender sender,String commandName, String[] args) {
+    public void invoke(CommandSender sender, String commandName, String[] args) {
         top.jingwenmc.spigotpie.common.command.CommandSender sender1 = new top.jingwenmc.spigotpie.common.command.CommandSender(sender.getName()) {
             @Override
             public boolean hasPermission(String permission) {
@@ -38,7 +38,7 @@ public class CommandManager {
 
             @Override
             public void sendMessage(String message) {
-                sender.sendMessage(new TextComponent(message));
+                sender.sendMessage(message);
             }
         };
         ArrayList<String> arrayList = new ArrayList<>(Collections.singletonList(commandName));
