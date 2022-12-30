@@ -43,6 +43,7 @@ public class SimpleInstanceManager {
                     Enumeration<?> enumeration = jarFile.entries();
                     while (enumeration.hasMoreElements()) {
                         JarEntry entry = (JarEntry) enumeration.nextElement();
+                        System.out.println(entry.getName());
                         loadClassByPath(null, entry.getName(), classes, cl);
                 }
             }
