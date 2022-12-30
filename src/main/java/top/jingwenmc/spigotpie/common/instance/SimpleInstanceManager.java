@@ -33,12 +33,12 @@ public class SimpleInstanceManager {
                         JarEntry entry = (JarEntry) enumeration.nextElement();
                         String name = entry.getName();
                         if(name.endsWith(".class")) {
-                            name = name.substring(0,name.length()-7);
+                            name = name.substring(0,name.length()-6);
                             name = name.replace('/','.').replace('\\','.');
                             classes.add(Class.forName(name));
                         }
+                    }
                 }
-            }
         }
         return classes;
     }
