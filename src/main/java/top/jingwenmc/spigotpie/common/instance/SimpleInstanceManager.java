@@ -18,12 +18,14 @@ import java.util.jar.JarFile;
 @SuppressWarnings("unchecked")
 public class SimpleInstanceManager {
     private static final Map<String,Object> instanceMap = new ConcurrentHashMap<>();
-    private static final Map<String,Class<?>> classMap = new ConcurrentHashMap<>();
     public static final Map<Field,Object> injectionMap = new ConcurrentHashMap<>();
     private static boolean init = false;
 
     public static List<Class<?>> scanClassByUrlClassLoader(URLClassLoader cl) throws Exception {
         List<Class<?>> classes = new ArrayList<>();
+        List<String> filter = new ArrayList<>(Arrays.asList(SpigotPie.getEnvironment().getFilterPackagePath()));
+        if(SpigotPie.getEnvironment().isBungeeCord()) filter.add("top.jingwenmc.spigotpie.spigot");
+        else filter.add("top.jingwenmc.spigotpie.bungee");
         for(URL url : cl.getURLs()) {
             if(url.getPath().endsWith(".jar"))
                 try(JarFile jarFile = new JarFile(url.getPath())){
@@ -34,12 +36,17 @@ public class SimpleInstanceManager {
                         if(name.endsWith(".class")) {
                             name = name.substring(0,name.length()-6);
                             name = name.replace('/','.').replace('\\','.');
-                            if(name.startsWith("top.jingwenmc.spigotpie.bungee") && !SpigotPie.getEnvironment().isBungeeCord())continue;
-                            if(name.startsWith("top.jingwenmc.spigotpie.spigot") && SpigotPie.getEnvironment().isBungeeCord())continue;
+                            boolean load = true;
+                            for(String f : filter) {
+                                if (name.startsWith(f)) {
+                                    load = false;
+                                    break;
+                                }
+                            }
+                            if(!load)continue;
                             try {
                                 Class<?> clazz = cl.loadClass(name);
                                 classes.add(clazz);
-                                classMap.put(clazz.getName(),clazz);
                             }catch (ClassNotFoundException | NoClassDefFoundError e) {
                                 System.err.println("Class Not Found: "+name);
                                 System.err.println("Won't create instance for it.");
@@ -52,7 +59,7 @@ public class SimpleInstanceManager {
         return classes;
     }
 
-    //TODO: Add SpigotOnly or BungeeCordOnly
+    //TODO: Test on BC
     /**
      * Call on start
      */
@@ -61,6 +68,9 @@ public class SimpleInstanceManager {
         for (Class<?> clazz : scanClassByUrlClassLoader((URLClassLoader) SpigotPie.class.getClassLoader())) {
             if(clazz == null)continue;
             if(clazz.isAnnotationPresent(PieComponent.class)) {
+                PieComponent pieComponent = clazz.getDeclaredAnnotation(PieComponent.class);
+                if(SpigotPie.getEnvironment().isBungeeCord() && pieComponent.platform().equals(Platform.SPIGOT))continue;
+                if(!SpigotPie.getEnvironment().isBungeeCord() && pieComponent.platform().equals(Platform.BUNGEE_CORD))continue;
                 if(!SpigotPie.getEnvironment().isBungeeCord() && clazz.getSuperclass().equals(org.bukkit.plugin.java.JavaPlugin.class)) {
                     Class<? extends org.bukkit.plugin.java.JavaPlugin> clazz2 = (Class<? extends org.bukkit.plugin.java.JavaPlugin>) clazz;
                     instanceMap.put(clazz.getName(), org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));

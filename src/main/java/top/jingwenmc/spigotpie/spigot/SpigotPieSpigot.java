@@ -19,13 +19,14 @@ public class SpigotPieSpigot extends JavaPlugin {
 
     private static JavaPlugin pluginInstance;
 
-    public static void inject(JavaPlugin plugin) {
+    public static void inject(JavaPlugin plugin,String... filterPackagePath) {
         pluginInstance = plugin;
         try {
             SpigotPie.loadPlugin(
                     PieEnvironment.builder()
                             .bungeeCord(false)
                             .asDedicatePlugin(false)
+                            .filterPackagePath(filterPackagePath)
                             .logger(plugin.getLogger())
                             .build());
             postLoad();

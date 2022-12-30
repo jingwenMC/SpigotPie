@@ -9,4 +9,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface PieComponent {
+    Platform platform() default Platform.BOTH;
 }

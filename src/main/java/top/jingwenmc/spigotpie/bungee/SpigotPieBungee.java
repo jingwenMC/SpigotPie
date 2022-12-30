@@ -17,13 +17,14 @@ public final class SpigotPieBungee extends Plugin {
 
     private static Plugin pluginInstance = null;
 
-    public static void inject(Plugin plugin) {
+    public static void inject(Plugin plugin,String... filterPackagePath) {
         pluginInstance = plugin;
         try {
             SpigotPie.loadPlugin(
                     PieEnvironment.builder()
                             .bungeeCord(true)
                             .asDedicatePlugin(false)
+                            .filterPackagePath(filterPackagePath)
                             .logger(plugin.getLogger())
                             .build());
         } catch (Exception e) {

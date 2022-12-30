@@ -14,6 +14,6 @@ import java.util.logging.Logger;
 public class PieEnvironment {
     private boolean bungeeCord = false;
     private boolean asDedicatePlugin = false;
+    private String[] filterPackagePath = null;
     private Logger logger = null;
-
 }
