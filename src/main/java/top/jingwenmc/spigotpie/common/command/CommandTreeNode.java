@@ -79,7 +79,7 @@ public class CommandTreeNode {
         if(node == null) {
             return requestBy;
         }
-        return node.getCommandNode(this,paths.toArray(new String[0]));
+        return node.getCommandNode(node,paths.toArray(new String[0]));
     }
 
     public String[] parseArgs(String[] args) {
