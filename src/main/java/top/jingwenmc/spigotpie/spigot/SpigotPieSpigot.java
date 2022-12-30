@@ -59,26 +59,12 @@ public class SpigotPieSpigot extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        pluginInstance = this;
-        try {
-            SpigotPie.loadPlugin(
-                    PieEnvironment.builder()
-                            .bungeeCord(false)
-                            .asDedicatePlugin(true)
-                            .logger(getLogger())
-                            .build());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        System.err.println("Spigot Pie cannot act as a dedicate plugin!");
     }
 
     @Override
     public void onEnable() {
-        try {
-            postLoad();
-        } catch (Exception e) {
-            throw new RuntimeException("Exception during PostLoad:",e);
-        }
+        System.err.println("Spigot Pie cannot act as a dedicate plugin!");
     }
 
     @Override

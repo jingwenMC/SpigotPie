@@ -2,6 +2,7 @@ package top.jingwenmc.spigotpie.common.instance;
 
 import org.jetbrains.annotations.Nullable;
 import top.jingwenmc.spigotpie.common.SpigotPie;
+import top.jingwenmc.spigotpie.spigot.SpigotPieSpigot;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,8 +12,11 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 public class SimpleInstanceManager {
     private static final Map<String,Object> instanceMap = new ConcurrentHashMap<>();
@@ -23,8 +27,24 @@ public class SimpleInstanceManager {
         List<Class<?>> classes = new ArrayList<>();
         while (urlEnumeration.hasMoreElements()) {
             URL url = urlEnumeration.nextElement();
+            System.out.println(url.getPath());
             if (url.getProtocol().equals("file")) {
                 loadClassByPath(null, url.getPath(), classes, cl);
+            }
+        }
+        return classes;
+    }
+
+    public static List<Class<?>> scanClassByUrlClassLoader(URLClassLoader cl) throws IOException {
+        List<Class<?>> classes = new ArrayList<>();
+        for(URL url : cl.getURLs()) {
+            if(url.getPath().endsWith(".jar"))
+                try(JarFile jarFile = new JarFile(url.getPath())){
+                    Enumeration<?> enumeration = jarFile.entries();
+                    while (enumeration.hasMoreElements()) {
+                        JarEntry entry = (JarEntry) enumeration.nextElement();
+                        loadClassByPath(null, entry.getName(), classes, cl);
+                }
             }
         }
         return classes;
@@ -37,7 +57,8 @@ public class SimpleInstanceManager {
             try {
                 String classPath = f.getPath();
                 String className = classPath.substring(root.length()+1,classPath.length()-6).replace('/','.').replace('\\','.');
-                list.add(load.loadClass(className));
+                Class<?> clazz = load.loadClass(className);
+                if(!list.contains(clazz)) list.add(clazz);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -55,7 +76,7 @@ public class SimpleInstanceManager {
      */
     public static void init() throws Exception {
         if(init)return;
-        for (Class<?> clazz : scanClassByClassLoader(SpigotPie.class.getClassLoader())) {
+        for (Class<?> clazz : scanClassByUrlClassLoader((URLClassLoader) SpigotPie.class.getClassLoader())) {
             if(clazz == null)continue;
             if(clazz.isAnnotationPresent(PieComponent.class)) {
                 if(!SpigotPie.getEnvironment().isBungeeCord() && clazz.getSuperclass().equals(org.bukkit.plugin.java.JavaPlugin.class)) {
