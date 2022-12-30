@@ -43,7 +43,10 @@ public class CommandTreeNode {
             if(this.path.equalsIgnoreCase(ROOT_NODE_PATH)) {
                 throw new IllegalArgumentException("Illegal path append to root/manager node");
             }
-            else return;
+            else {
+                this.consumer = consumer;
+                return;
+            }
         }
         ArrayList<String> paths = new ArrayList<>(Arrays.asList(path.split("\\s")));
         if(this.path.equalsIgnoreCase(ROOT_NODE_PATH)) {
@@ -52,6 +55,7 @@ public class CommandTreeNode {
             }
         }
         if(paths.size() == 0) {
+            this.consumer = consumer;
             return;
         }
         String sub = paths.get(0);
