@@ -60,7 +60,7 @@ public class GenericConsumer implements Consumer<CommandItem> {
             //TODO:Localized message
         }
         if(length> methodParameters.size()){
-            commandItem.getSender().sendMessage(ChatColor.RED+"指令的参数过多！最多需要"+length+"个参数！");
+            commandItem.getSender().sendMessage(ChatColor.RED+"指令的参数过多！最多需要"+methodParameters.size()+"个参数！");
             return;
             //TODO:Localized message
         }
