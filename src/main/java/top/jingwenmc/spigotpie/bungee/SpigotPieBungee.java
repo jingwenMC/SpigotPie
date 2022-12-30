@@ -56,23 +56,13 @@ public final class SpigotPieBungee extends Plugin {
 
     @Override
     public void onLoad() {
-        pluginInstance = this;
-        try {
-            SpigotPie.loadPlugin(
-                    PieEnvironment.builder()
-                            .bungeeCord(true)
-                            .asDedicatePlugin(true)
-                            .logger(getLogger())
-                            .build());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        System.err.println("Spigot Pie cannot act as a dedicate plugin currently!");
         // Plugin startup logic
     }
 
     @Override
     public void onEnable() {
-        postLoad();
+        System.err.println("Spigot Pie cannot act as a dedicate plugin currently!");
     }
 
     @Override
