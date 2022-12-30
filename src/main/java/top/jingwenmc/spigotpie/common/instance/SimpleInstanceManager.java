@@ -34,6 +34,8 @@ public class SimpleInstanceManager {
                         if(name.endsWith(".class")) {
                             name = name.substring(0,name.length()-6);
                             name = name.replace('/','.').replace('\\','.');
+                            if(name.startsWith("top.jingwenmc.spigotpie.bungee") && !SpigotPie.getEnvironment().isBungeeCord())continue;
+                            if(name.startsWith("top.jingwenmc.spigotpie.spigot") && SpigotPie.getEnvironment().isBungeeCord())continue;
                             try {
                                 Class<?> clazz = cl.loadClass(name);
                                 classes.add(clazz);
@@ -50,6 +52,7 @@ public class SimpleInstanceManager {
         return classes;
     }
 
+    //TODO: Add SpigotOnly or BungeeCordOnly
     /**
      * Call on start
      */
