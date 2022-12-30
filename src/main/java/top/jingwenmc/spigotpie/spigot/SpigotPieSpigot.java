@@ -59,12 +59,12 @@ public class SpigotPieSpigot extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        System.err.println("Spigot Pie cannot act as a dedicate plugin!");
+        System.err.println("Spigot Pie cannot act as a dedicate plugin currently!");
     }
 
     @Override
     public void onEnable() {
-        System.err.println("Spigot Pie cannot act as a dedicate plugin!");
+        System.err.println("Spigot Pie cannot act as a dedicate plugin currently!");
     }
 
     @Override

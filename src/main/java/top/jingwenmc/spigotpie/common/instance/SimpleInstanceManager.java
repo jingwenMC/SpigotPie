@@ -22,20 +22,8 @@ public class SimpleInstanceManager {
     private static final Map<String,Object> instanceMap = new ConcurrentHashMap<>();
     public static final Map<Field,Object> injectionMap = new ConcurrentHashMap<>();
     private static boolean init = false;
-    public static List<Class<?>> scanClassByClassLoader(ClassLoader cl) throws IOException {
-        Enumeration<URL> urlEnumeration = cl.getResources("");
-        List<Class<?>> classes = new ArrayList<>();
-        while (urlEnumeration.hasMoreElements()) {
-            URL url = urlEnumeration.nextElement();
-            System.out.println(url.getPath());
-            if (url.getProtocol().equals("file")) {
-                loadClassByPath(null, url.getPath(), classes, cl);
-            }
-        }
-        return classes;
-    }
 
-    public static List<Class<?>> scanClassByUrlClassLoader(URLClassLoader cl) throws IOException {
+    public static List<Class<?>> scanClassByUrlClassLoader(URLClassLoader cl) throws Exception {
         List<Class<?>> classes = new ArrayList<>();
         for(URL url : cl.getURLs()) {
             if(url.getPath().endsWith(".jar"))
@@ -43,33 +31,16 @@ public class SimpleInstanceManager {
                     Enumeration<?> enumeration = jarFile.entries();
                     while (enumeration.hasMoreElements()) {
                         JarEntry entry = (JarEntry) enumeration.nextElement();
-                        System.out.println(entry.getName());
-                        loadClassByPath(null, entry.getName(), classes, cl);
+                        String name = entry.getName();
+                        if(name.endsWith(".class")) {
+                            name = name.substring(0,name.length()-7);
+                            name = name.replace('/','.').replace('\\','.');
+                            classes.add(Class.forName(name));
+                        }
                 }
             }
         }
         return classes;
-    }
-
-    private static void loadClassByPath(String root, String path, List<Class<?>> list, ClassLoader load) {
-        File f = new File(path);
-        if(root==null) root = f.getPath();
-        if (f.isFile() && f.getName().matches("^.*\\.class$")) {
-            try {
-                String classPath = f.getPath();
-                String className = classPath.substring(root.length()+1,classPath.length()-6).replace('/','.').replace('\\','.');
-                Class<?> clazz = load.loadClass(className);
-                if(!list.contains(clazz)) list.add(clazz);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        } else {
-            File[] fs = f.listFiles();
-            if (fs == null) return;
-            for (File file : fs) {
-                loadClassByPath(root,file.getPath(), list, load);
-            }
-        }
     }
 
     /**
