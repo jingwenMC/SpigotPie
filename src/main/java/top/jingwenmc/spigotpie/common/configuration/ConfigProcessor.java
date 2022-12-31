@@ -33,6 +33,7 @@ public class ConfigProcessor implements PreProcessor {
                     .autoreload()
                     .onFileNotFound(FileNotFoundAction.CREATE_EMPTY)
                     .build()) {
+                fileConfig.load();
                 f2.set(o,fileConfig);
                 ((BaseConfiguration) o).reloadConfig();
             } catch (Exception e) {
