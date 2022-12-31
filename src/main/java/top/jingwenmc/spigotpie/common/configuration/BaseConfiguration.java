@@ -14,7 +14,10 @@ public abstract class BaseConfiguration {
                 f.setAccessible(true);
                 Configuration configuration = f.getDeclaredAnnotation(Configuration.class);
                 String path = configuration.value();
-                if(fileConfig.contains(path)) f.set(this,fileConfig.get(path));
+                if(fileConfig.contains(path)) {
+                    System.out.println("Reading:"+path+",from:"+f.get(this)+"to:"+fileConfig.get(path));
+                    f.set(this,fileConfig.get(path));
+                }
             }
         }
         saveConfig();
@@ -29,9 +32,11 @@ public abstract class BaseConfiguration {
                 String comment = configuration.comment();
                 if(fileConfig.contains(path)) {
                     if(!f.get(this).equals(fileConfig.get(path))) {
+                        System.out.println("Saving:"+path+",from:"+fileConfig.get(path)+"to:"+f.get(this));
                         fileConfig.set(path,f.get(this));
                     }
                 } else {
+                    System.out.println("Setting:"+path+"to:"+f.get(this));
                     fileConfig.set(path,f.get(this));
                     if(comment != null && !comment.isEmpty()) fileConfig.setComment(path,comment);
                 }

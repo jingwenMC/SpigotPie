@@ -2,6 +2,7 @@ package top.jingwenmc.spigotpie.common.configuration;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.file.FileNotFoundAction;
+import com.electronwill.nightconfig.core.io.ParsingMode;
 import lombok.SneakyThrows;
 import top.jingwenmc.spigotpie.common.SpigotPie;
 import top.jingwenmc.spigotpie.common.instance.Accepts;
@@ -27,7 +28,11 @@ public class ConfigProcessor implements PreProcessor {
             SpigotPie.getEnvironment().getWorkFolder().mkdirs();
             File configFile = new File(SpigotPie.getEnvironment().getWorkFolder(), configurationFile.value());
             f1.set(o,configFile);
-            try (CommentedFileConfig fileConfig = CommentedFileConfig.builder(configFile).autosave().autoreload().onFileNotFound(FileNotFoundAction.CREATE_EMPTY).build()) {
+            try (CommentedFileConfig fileConfig = CommentedFileConfig.builder(configFile)
+                    .autosave()
+                    .autoreload()
+                    .onFileNotFound(FileNotFoundAction.CREATE_EMPTY)
+                    .build()) {
                 f2.set(o,fileConfig);
                 ((BaseConfiguration) o).reloadConfig();
             } catch (Exception e) {
