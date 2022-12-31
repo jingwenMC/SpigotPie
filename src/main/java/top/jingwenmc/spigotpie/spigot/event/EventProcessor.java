@@ -18,7 +18,7 @@ public class EventProcessor implements PreProcessor {
     @Accepts(SpigotEventListener.class)
     public void preProcess(Object o) {
         if(o.getClass().getInterfaces().length!=0 && o.getClass().getInterfaces()[0].equals(Listener.class))
-            Bukkit.getPluginManager().registerEvents((Listener)o, SpigotPieSpigot.getPlugin(SpigotPieSpigot.class));
+            Bukkit.getPluginManager().registerEvents((Listener)o, SpigotPieSpigot.getPluginInstance());
     }
 
     @Override

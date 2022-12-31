@@ -1,5 +1,6 @@
 package top.jingwenmc.spigotpie.spigot;
 
+import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -17,7 +18,7 @@ import java.lang.reflect.Field;
 import java.util.logging.Level;
 
 public class SpigotPieSpigot extends JavaPlugin {
-
+    @Getter
     private static JavaPlugin pluginInstance;
 
     public static void inject(JavaPlugin plugin,String... filterPackagePath) {
