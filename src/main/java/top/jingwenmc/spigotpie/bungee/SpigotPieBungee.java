@@ -1,5 +1,6 @@
 package top.jingwenmc.spigotpie.bungee;
 
+import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -10,11 +11,13 @@ import top.jingwenmc.spigotpie.common.PieEnvironment;
 import top.jingwenmc.spigotpie.common.SpigotPie;
 import top.jingwenmc.spigotpie.common.command.CommandTreeNode;
 import top.jingwenmc.spigotpie.common.instance.SimpleInstanceManager;
+import top.jingwenmc.spigotpie.common.lang.PieLang;
 
 import java.util.logging.Level;
 
 public final class SpigotPieBungee extends Plugin {
 
+    @Getter
     private static Plugin pluginInstance = null;
 
     public static void inject(Plugin plugin,String... filterPackagePath) {
@@ -43,8 +46,7 @@ public final class SpigotPieBungee extends Plugin {
                 public void execute(CommandSender sender, String[] args) {
                     CommandTreeNode node = commandManager.getNode(commandName,args);
                     if(node.isRoot()) {
-                        TextComponent tc = new TextComponent("指令未找到!");//TODO: Localized Message
-                        tc.setColor(ChatColor.RED);
+                        TextComponent tc = new TextComponent(PieLang.COMMAND_NOT_FOUND);
                         sender.sendMessage(tc);
                     } else {
                         commandManager.invoke(sender,commandName,args);

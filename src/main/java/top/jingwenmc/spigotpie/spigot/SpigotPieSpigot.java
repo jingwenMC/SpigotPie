@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import top.jingwenmc.spigotpie.common.lang.PieLang;
 import top.jingwenmc.spigotpie.spigot.command.CommandManager;
 import top.jingwenmc.spigotpie.common.PieEnvironment;
 import top.jingwenmc.spigotpie.common.SpigotPie;
@@ -50,7 +51,7 @@ public class SpigotPieSpigot extends JavaPlugin {
                 public boolean execute(CommandSender sender, String commandLabel, String[] args) {
                     CommandTreeNode node = commandManager.getNode(commandName,args);
                     if(node.isRoot()) {
-                        sender.sendMessage(ChatColor.RED+"指令未找到!");//TODO: Localized Message
+                        sender.sendMessage(PieLang.COMMAND_NOT_FOUND);
                     } else {
                         commandManager.invoke(sender,commandName,args);
                     }

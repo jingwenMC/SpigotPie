@@ -2,6 +2,7 @@ package top.jingwenmc.spigotpie.common.command;
 
 import lombok.SneakyThrows;
 import net.md_5.bungee.api.ChatColor;
+import top.jingwenmc.spigotpie.common.lang.PieLang;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -55,14 +56,12 @@ public class GenericConsumer implements Consumer<CommandItem> {
         }
         int length = commandItem.getArgs().length;
         if(length<leastRequired){
-            commandItem.getSender().sendMessage(ChatColor.RED+"指令的参数不足！至少需要"+leastRequired+"个参数！");
+            commandItem.getSender().sendMessage(PieLang.TOO_FEW_ARGS.replace("$1",String.valueOf(leastRequired)));
             return;
-            //TODO:Localized message
         }
         if(length> methodParameters.size()){
-            commandItem.getSender().sendMessage(ChatColor.RED+"指令的参数过多！最多需要"+methodParameters.size()+"个参数！");
+            commandItem.getSender().sendMessage(PieLang.TOO_MANY_ARGS.replace("$1",String.valueOf(methodParameters.size())));
             return;
-            //TODO:Localized message
         }
         List<Object> parameters = new ArrayList<>();
         parameters.add(commandItem.getSender());
