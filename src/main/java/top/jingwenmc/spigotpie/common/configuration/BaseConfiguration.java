@@ -33,7 +33,7 @@ public abstract class BaseConfiguration {
                     }
                 } else {
                     fileConfig.set(path,f.get(this));
-                    fileConfig.setComment(path,comment);
+                    if(comment != null && !comment.isEmpty()) fileConfig.setComment(path,comment);
                 }
             }
         }
