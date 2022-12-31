@@ -7,7 +7,7 @@ import top.jingwenmc.spigotpie.common.configuration.ConfigurationFile;
 import top.jingwenmc.spigotpie.common.instance.PieComponent;
 
 @PieComponent
-@ConfigurationFile("SpigotPie/lang.toml")
+@ConfigurationFile("pie_lang.toml")
 public class PieLang extends BaseConfiguration {
     @Configuration("too_few_args")
     public static String TOO_FEW_ARGS = ChatColor.RED+"指令的参数不足！至少需要$1个参数！";
