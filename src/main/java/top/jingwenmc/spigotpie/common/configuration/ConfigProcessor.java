@@ -19,9 +19,9 @@ public class ConfigProcessor implements PreProcessor {
     public void preProcess(Object o) {
         if(o.getClass().getSuperclass().equals(BaseConfiguration.class)) {
             ConfigurationFile configurationFile = o.getClass().getDeclaredAnnotation(ConfigurationFile.class);
-            Field f1 = o.getClass().getDeclaredField("file");
+            Field f1 = o.getClass().getSuperclass().getDeclaredField("file");
             f1.setAccessible(true);
-            Field f2 = o.getClass().getDeclaredField("fileConfig");
+            Field f2 = o.getClass().getSuperclass().getDeclaredField("fileConfig");
             f2.setAccessible(true);
             SpigotPie.getEnvironment().getWorkFolder().mkdirs();
             File configFile = new File(SpigotPie.getEnvironment().getWorkFolder(), configurationFile.value());
