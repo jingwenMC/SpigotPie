@@ -27,6 +27,7 @@ public class SpigotPieSpigot extends JavaPlugin {
                             .bungeeCord(false)
                             .asDedicatePlugin(false)
                             .filterPackagePath(filterPackagePath)
+                            .workFolder(pluginInstance.getDataFolder())
                             .logger(plugin.getLogger())
                             .build());
             postLoad();

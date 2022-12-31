@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.File;
 import java.util.logging.Logger;
 
 @Data
@@ -15,5 +16,6 @@ public class PieEnvironment {
     private boolean bungeeCord = false;
     private boolean asDedicatePlugin = false;
     private String[] filterPackagePath = null;
+    private File workFolder = new File("");
     private Logger logger = null;
 }

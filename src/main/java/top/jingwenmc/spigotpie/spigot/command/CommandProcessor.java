@@ -20,7 +20,7 @@ public class CommandProcessor implements PreProcessor {
 
     @Override
     public void preProcess(Object o) {
-
+        //Didn't use this type of processor
     }
 
     @SneakyThrows

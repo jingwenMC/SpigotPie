@@ -25,6 +25,7 @@ public final class SpigotPieBungee extends Plugin {
                             .bungeeCord(true)
                             .asDedicatePlugin(false)
                             .filterPackagePath(filterPackagePath)
+                            .workFolder(pluginInstance.getDataFolder())
                             .logger(plugin.getLogger())
                             .build());
         } catch (Exception e) {
