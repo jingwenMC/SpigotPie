@@ -37,6 +37,5 @@ public abstract class BaseConfiguration {
                 }
             }
         }
-        fileConfig.save();
     }
 }

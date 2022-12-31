@@ -1,6 +1,7 @@
 package top.jingwenmc.spigotpie.common.configuration;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.file.FileNotFoundAction;
 import lombok.SneakyThrows;
 import top.jingwenmc.spigotpie.common.SpigotPie;
 import top.jingwenmc.spigotpie.common.instance.Accepts;
@@ -25,9 +26,8 @@ public class ConfigProcessor implements PreProcessor {
             f2.setAccessible(true);
             SpigotPie.getEnvironment().getWorkFolder().mkdirs();
             File configFile = new File(SpigotPie.getEnvironment().getWorkFolder(), configurationFile.value());
-            configFile.createNewFile();
             f1.set(o,configFile);
-            try (CommentedFileConfig fileConfig = CommentedFileConfig.of(configFile)) {
+            try (CommentedFileConfig fileConfig = CommentedFileConfig.builder(configFile).autosave().autoreload().onFileNotFound(FileNotFoundAction.CREATE_EMPTY).build()) {
                 f2.set(o,fileConfig);
                 ((BaseConfiguration) o).reloadConfig();
             } catch (Exception e) {
