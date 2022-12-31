@@ -3,6 +3,7 @@ package top.jingwenmc.spigotpie.common.command;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import net.md_5.bungee.api.ChatColor;
+import top.jingwenmc.spigotpie.common.lang.PieLang;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,7 +67,7 @@ public class CommandTreeNode {
         }
         CommandTreeNode node = treeMap.get(sub);
         if(node == null) {
-            node = new CommandTreeNode(this,sub,commandItem -> commandItem.getSender().sendMessage(ChatColor.RED+"子指令未找到!请检查输入项目是否正确!")); //TODO: Localized message
+            node = new CommandTreeNode(this,sub,commandItem -> commandItem.getSender().sendMessage(PieLang.COMMAND_FALLBACK));
             treeMap.put(sub,node);
         }
         node.addCommandNode(sj.toString(),consumer);

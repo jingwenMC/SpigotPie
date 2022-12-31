@@ -17,4 +17,7 @@ public class PieLang extends BaseConfiguration {
 
     @Configuration("command_not_found")
     public static String COMMAND_NOT_FOUND = ChatColor.RED+"指令未找到！";
+
+    @Configuration("command_fallback")
+    public static String COMMAND_FALLBACK = ChatColor.RED+"子指令未找到!请检查输入项目是否正确!";
 }
