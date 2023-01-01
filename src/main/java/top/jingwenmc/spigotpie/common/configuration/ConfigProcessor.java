@@ -27,9 +27,17 @@ public class ConfigProcessor implements PreProcessor {
             SpigotPie.getEnvironment().getWorkFolder().mkdirs();
             File configFile = new File(SpigotPie.getEnvironment().getWorkFolder(), configurationFile.value());
             f1.set(o,configFile);
-            CommentedFileConfig fileConfig = CommentedFileConfig.builder(configFile).onFileNotFound(FileNotFoundAction.CREATE_EMPTY).build();
-            f2.set(o,fileConfig);
-            ((BaseConfiguration) o).reloadConfig();
+            try (CommentedFileConfig fileConfig = CommentedFileConfig.builder(configFile)
+                    .autosave()
+                    .autoreload()
+                    .onFileNotFound(FileNotFoundAction.CREATE_EMPTY)
+                    .build()) {
+                fileConfig.load();
+                f2.set(o,fileConfig);
+                ((BaseConfiguration) o).reloadConfig();
+            } catch (Exception e) {
+                throw new RuntimeException("Exception during config file load:",e);
+            }
         }
     }
 

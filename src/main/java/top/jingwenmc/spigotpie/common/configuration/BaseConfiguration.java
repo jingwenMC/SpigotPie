@@ -9,7 +9,6 @@ public abstract class BaseConfiguration {
     private File file;
     private CommentedFileConfig fileConfig;
     public void reloadConfig() throws IllegalAccessException {
-        fileConfig.load();
         for(Field f : this.getClass().getDeclaredFields()) {
             if(f.isAnnotationPresent(Configuration.class)) {
                 f.setAccessible(true);
@@ -40,6 +39,5 @@ public abstract class BaseConfiguration {
                 }
             }
         }
-        fileConfig.save();
     }
 }
