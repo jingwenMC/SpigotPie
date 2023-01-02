@@ -59,9 +59,13 @@ public class GenericConsumer implements Consumer<CommandItem> {
                 if (!s.startsWith("\"")) {
                     arrayList.add(s);
                 } else {
-                    lock = true;
-                    stringJoiner = new StringJoiner(" ");
-                    stringJoiner.add(s.substring(1));
+                    if(s.endsWith("\"")) {
+                        arrayList.add(s.substring(1,s.length()-1));
+                    } else {
+                        lock = true;
+                        stringJoiner = new StringJoiner(" ");
+                        stringJoiner.add(s.substring(1));
+                    }
                 }
             } else {
                 if(s.endsWith("\"")) {
@@ -69,7 +73,7 @@ public class GenericConsumer implements Consumer<CommandItem> {
                     arrayList.add(stringJoiner.toString());
                     lock = false;
                 } else {
-                    arrayList.add(s);
+                    stringJoiner.add(s);
                 }
             }
         }
