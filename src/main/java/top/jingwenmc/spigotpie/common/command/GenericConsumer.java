@@ -78,6 +78,7 @@ public class GenericConsumer implements Consumer<CommandItem> {
             }
         }
         String[] args = arrayList.toArray(new String[0]);
+        if(lock)args = commandItem.getArgs();
         int length = args.length;
         if(length<leastRequired){
             commandItem.getSender().sendMessage(PieLang.TOO_FEW_ARGS.replace("$1",String.valueOf(leastRequired)));
