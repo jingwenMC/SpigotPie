@@ -7,7 +7,7 @@ import top.jingwenmc.spigotpie.common.configuration.ConfigurationFile;
 import top.jingwenmc.spigotpie.common.instance.PieComponent;
 
 @PieComponent
-@ConfigurationFile("pie_lang.toml")
+@ConfigurationFile("SpigotPie/lang.yml")
 public class PieLang extends BaseConfiguration {
     @Configuration("too_few_args")
     public static String TOO_FEW_ARGS = ChatColor.RED+"指令的参数不足！至少需要$1个参数！";
@@ -17,6 +17,9 @@ public class PieLang extends BaseConfiguration {
 
     @Configuration("command_not_found")
     public static String COMMAND_NOT_FOUND = ChatColor.RED+"指令未找到！";
+
+    @Configuration("command_error")
+    public static String COMMAND_ERROR = ChatColor.RED+"指令发生错误！请查看控制台！";
 
     @Configuration("command_fallback")
     public static String COMMAND_FALLBACK = ChatColor.RED+"子指令未找到!请检查输入项目是否正确!";

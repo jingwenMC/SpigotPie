@@ -81,7 +81,12 @@ public class GenericConsumer implements Consumer<CommandItem> {
                 }
             }
         }
-        targetMethod.invoke(targetObject,parameters.toArray());
+        try {
+            targetMethod.invoke(targetObject, parameters.toArray());
+        }catch (Exception e) {
+            commandItem.getSender().sendMessage(PieLang.COMMAND_ERROR);
+            e.printStackTrace();
+        }
     }
 
     public static class SupportedTypes {

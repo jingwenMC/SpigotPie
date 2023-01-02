@@ -7,5 +7,5 @@ import java.lang.annotation.*;
 @Documented
 public @interface Configuration {
     String value();
-    String comment() default "";
+
 }

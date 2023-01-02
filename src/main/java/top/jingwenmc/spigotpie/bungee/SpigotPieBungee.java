@@ -7,6 +7,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Plugin;
 import top.jingwenmc.spigotpie.bungee.command.CommandManager;
+import top.jingwenmc.spigotpie.bungee.configuration.BungeeConfigurationAdapter;
 import top.jingwenmc.spigotpie.common.PieEnvironment;
 import top.jingwenmc.spigotpie.common.SpigotPie;
 import top.jingwenmc.spigotpie.common.command.CommandTreeNode;
@@ -29,6 +30,7 @@ public final class SpigotPieBungee extends Plugin {
                             .asDedicatePlugin(false)
                             .filterPackagePath(filterPackagePath)
                             .workFolder(pluginInstance.getDataFolder())
+                            .configurationAdapter(BungeeConfigurationAdapter.class)
                             .logger(plugin.getLogger())
                             .build());
         } catch (Exception e) {
@@ -55,7 +57,7 @@ public final class SpigotPieBungee extends Plugin {
             });
         }
         pluginInstance.getLogger().log(Level.INFO,"[Pie-BC]Command(s) registered.");
-        pluginInstance.getLogger().log(Level.INFO,"[Pie-BC]Total: "+commandManager.getAllCommands().length+" node(s)");
+        pluginInstance.getLogger().log(Level.INFO,"[Pie-BC]Total: "+commandManager.getAllCommands().length+" command(s)");
     }
 
     @Override

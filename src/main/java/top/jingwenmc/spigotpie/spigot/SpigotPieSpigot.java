@@ -13,6 +13,7 @@ import top.jingwenmc.spigotpie.common.PieEnvironment;
 import top.jingwenmc.spigotpie.common.SpigotPie;
 import top.jingwenmc.spigotpie.common.command.CommandTreeNode;
 import top.jingwenmc.spigotpie.common.instance.SimpleInstanceManager;
+import top.jingwenmc.spigotpie.spigot.configuration.SpigotConfigurationAdapter;
 
 import java.lang.reflect.Field;
 import java.util.logging.Level;
@@ -30,6 +31,7 @@ public class SpigotPieSpigot extends JavaPlugin {
                             .asDedicatePlugin(false)
                             .filterPackagePath(filterPackagePath)
                             .workFolder(pluginInstance.getDataFolder())
+                            .configurationAdapter(SpigotConfigurationAdapter.class)
                             .logger(plugin.getLogger())
                             .build());
             postLoad();
@@ -61,7 +63,7 @@ public class SpigotPieSpigot extends JavaPlugin {
             });
         }
         pluginInstance.getLogger().log(Level.INFO,"[Pie]Command(s) registered.");
-        pluginInstance.getLogger().log(Level.INFO,"[Pie]Total: "+commandManager.getAllCommands().length+" node(s)");
+        pluginInstance.getLogger().log(Level.INFO,"[Pie]Total: "+commandManager.getAllCommands().length+" command(s)");
     }
 
     @Override

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import top.jingwenmc.spigotpie.common.configuration.ConfigurationAdapter;
 
 import java.io.File;
 import java.util.logging.Logger;
@@ -17,5 +18,6 @@ public class PieEnvironment {
     private boolean asDedicatePlugin = false;
     private String[] filterPackagePath = null;
     private File workFolder = new File("");
+    private Class<? extends ConfigurationAdapter> configurationAdapter = null;
     private Logger logger = null;
 }
