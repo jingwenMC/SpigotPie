@@ -6,10 +6,7 @@ import top.jingwenmc.spigotpie.common.lang.PieLang;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class GenericConsumer implements Consumer<CommandItem> {
@@ -54,7 +51,30 @@ public class GenericConsumer implements Consumer<CommandItem> {
             targetMethod.invoke(targetObject,commandItem);
             return;
         }
-        int length = commandItem.getArgs().length;
+        ArrayList<String> arrayList = new ArrayList<>();
+        boolean lock = false;
+        StringJoiner stringJoiner = null;
+        for(String s :commandItem.getArgs()) {
+            if(!lock) {
+                if (!s.startsWith("\"")) {
+                    arrayList.add(s);
+                } else {
+                    lock = true;
+                    stringJoiner = new StringJoiner(" ");
+                    stringJoiner.add(s.substring(1));
+                }
+            } else {
+                if(s.endsWith("\"")) {
+                    stringJoiner.add(s.substring(0,s.length()-1));
+                    arrayList.add(stringJoiner.toString());
+                    lock = false;
+                } else {
+                    arrayList.add(s);
+                }
+            }
+        }
+        String[] args = arrayList.toArray(new String[0]);
+        int length = args.length;
         if(length<leastRequired){
             commandItem.getSender().sendMessage(PieLang.TOO_FEW_ARGS.replace("$1",String.valueOf(leastRequired)));
             return;
@@ -66,7 +86,7 @@ public class GenericConsumer implements Consumer<CommandItem> {
         List<Object> parameters = new ArrayList<>();
         parameters.add(commandItem.getSender());
         if(methodParameters.size() - leastRequired != 1) {
-            parameters.addAll(Arrays.asList(commandItem.getArgs()));
+            parameters.addAll(Arrays.asList(args));
             for (int i = 0; i < methodParameters.size() - parameters.size() + 1; i++) {
                 parameters.add(methodParameters.get(parameters.size() + i).getAnnotation(NotRequiredCommandParam.class).value());
             }
@@ -76,7 +96,7 @@ public class GenericConsumer implements Consumer<CommandItem> {
                 if(pp.isAnnotationPresent(NotRequiredCommandParam.class) && length == leastRequired) {
                     parameters.add(pp.getAnnotation(NotRequiredCommandParam.class).value());
                 } else {
-                    parameters.add(commandItem.getArgs()[p]);
+                    parameters.add(args[p]);
                     p++;
                 }
             }
