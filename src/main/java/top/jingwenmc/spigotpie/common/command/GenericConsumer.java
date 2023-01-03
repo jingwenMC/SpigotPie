@@ -60,7 +60,8 @@ public class GenericConsumer implements Consumer<CommandItem> {
                     arrayList.add(s);
                 } else {
                     if(s.endsWith("\"")) {
-                        arrayList.add(s.substring(1,s.length()-1));
+                        if(s.equalsIgnoreCase("\"")) arrayList.add("\"");
+                        else arrayList.add(s.substring(1,s.length()-1));
                     } else {
                         lock = true;
                         stringJoiner = new StringJoiner(" ");
