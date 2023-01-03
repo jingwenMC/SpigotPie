@@ -29,13 +29,13 @@ public class SpigotConfigurationAdapter extends ConfigurationAdapter {
     @Override
     public void init(File file) {
         this.file = file;
-        yamlConfiguration = YamlConfiguration.loadConfiguration(file);
+        load();
     }
 
     @SneakyThrows
     @Override
     public void load() {
-        yamlConfiguration.load(file);
+        yamlConfiguration = YamlConfiguration.loadConfiguration(file);
     }
 
     @Override

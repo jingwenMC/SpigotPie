@@ -8,6 +8,7 @@ public abstract class BaseConfiguration {
     private File file;
     private ConfigurationAdapter fileConfig;
     public void reloadConfig() throws IllegalAccessException, IOException {
+        fileConfig.load();
         for(Field f : this.getClass().getDeclaredFields()) {
             if(f.isAnnotationPresent(Configuration.class)) {
                 f.setAccessible(true);
