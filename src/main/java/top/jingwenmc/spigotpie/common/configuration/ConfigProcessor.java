@@ -30,6 +30,7 @@ public class ConfigProcessor implements PreProcessor {
                 folder.mkdirs();
             }
             File configFile = new File(folder, strings[strings.length-1]);
+            if(!configFile.exists())configFile.createNewFile();
             f1.set(o,configFile);
             try{
                 ConfigurationAdapter fileConfig = SpigotPie.getEnvironment().getConfigurationAdapter().newInstance();
