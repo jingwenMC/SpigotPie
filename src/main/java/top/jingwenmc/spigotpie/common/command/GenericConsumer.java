@@ -96,7 +96,7 @@ public class GenericConsumer implements Consumer<CommandItem> {
         parameters.add(commandItem.getSender());
         if(methodParameters.size() - leastRequired != 1) {
             parameters.addAll(Arrays.asList(args));
-            for (int i = 0; i < methodParameters.size() - parameters.size() + 1; i++) {
+            for (int i = 0; i < methodParameters.size() - parameters.size(); i++) {
                 parameters.add(methodParameters.get(parameters.size() + i).getAnnotation(NotRequiredCommandParam.class).value());
             }
         } else {
