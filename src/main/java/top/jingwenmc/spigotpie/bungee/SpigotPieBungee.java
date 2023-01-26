@@ -1,7 +1,6 @@
 package top.jingwenmc.spigotpie.bungee;
 
 import lombok.Getter;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Command;
@@ -21,7 +20,7 @@ public final class SpigotPieBungee extends Plugin {
     @Getter
     private static Plugin pluginInstance = null;
 
-    public static void inject(Plugin plugin,String... filterPackagePath) {
+    public static void inject(Plugin plugin,boolean filterWhitelistMode,String... filterPackagePath) {
         pluginInstance = plugin;
         try {
             SpigotPie.loadPlugin(
@@ -29,6 +28,7 @@ public final class SpigotPieBungee extends Plugin {
                             .bungeeCord(true)
                             .asDedicatePlugin(false)
                             .filterPackagePath(filterPackagePath)
+                            .filterWhitelistMode(filterWhitelistMode)
                             .workFolder(pluginInstance.getDataFolder())
                             .configurationAdapter(BungeeConfigurationAdapter.class)
                             .logger(plugin.getLogger())
@@ -39,8 +39,12 @@ public final class SpigotPieBungee extends Plugin {
         postLoad();
     }
 
+    public static void inject(Plugin plugin, String... filterPackagePath) {
+        inject(plugin,false,filterPackagePath);
+    }
+
     public static void postLoad() {
-        CommandManager commandManager = (CommandManager) SimpleInstanceManager.getDeclaredInstance(CommandManager.class);
+        CommandManager commandManager = (CommandManager) SimpleInstanceManager.getDeclaredInstance(CommandManager.class,CommandManager.class.getSimpleName());
         assert commandManager != null;
         for(String commandName : commandManager.getAllCommands()) {
             pluginInstance.getProxy().getPluginManager().registerCommand(pluginInstance, new Command(commandName) {

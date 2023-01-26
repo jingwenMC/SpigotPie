@@ -17,6 +17,7 @@ public class PieEnvironment {
     private boolean bungeeCord = false;
     private boolean asDedicatePlugin = false;
     private String[] filterPackagePath = null;
+    private boolean filterWhitelistMode = false;
     private File workFolder = new File("");
     private Class<? extends ConfigurationAdapter> configurationAdapter = null;
     private Logger logger = null;

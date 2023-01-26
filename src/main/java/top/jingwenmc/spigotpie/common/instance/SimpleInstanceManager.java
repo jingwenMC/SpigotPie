@@ -1,5 +1,6 @@
 package top.jingwenmc.spigotpie.common.instance;
 
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.Nullable;
 import top.jingwenmc.spigotpie.common.SpigotPie;
 
@@ -17,15 +18,18 @@ import java.util.jar.JarFile;
 
 @SuppressWarnings("unchecked")
 public class SimpleInstanceManager {
-    private static final Map<String,Object> instanceMap = new ConcurrentHashMap<>();
+    private static final Map<String,Map<String,Object>> instanceMap = new ConcurrentHashMap<>();
     public static final Map<Field,Object> injectionMap = new ConcurrentHashMap<>();
     private static boolean init = false;
 
     public static List<Class<?>> scanClassByUrlClassLoader(URLClassLoader cl) throws Exception {
         List<Class<?>> classes = new ArrayList<>();
         List<String> filter = new ArrayList<>(Arrays.asList(SpigotPie.getEnvironment().getFilterPackagePath()));
-        if(SpigotPie.getEnvironment().isBungeeCord()) filter.add("top.jingwenmc.spigotpie.spigot");
-        else filter.add("top.jingwenmc.spigotpie.bungee");
+        if(!SpigotPie.getEnvironment().isFilterWhitelistMode()) {
+            if (SpigotPie.getEnvironment().isBungeeCord()) filter.add("top.jingwenmc.spigotpie.spigot");
+            else filter.add("top.jingwenmc.spigotpie.bungee");
+            filter.add("META-INF");
+        }
         for(URL url : cl.getURLs()) {
             if(url.getPath().endsWith(".jar"))
                 try(JarFile jarFile = new JarFile(url.getPath())){
@@ -37,10 +41,20 @@ public class SimpleInstanceManager {
                             name = name.substring(0,name.length()-6);
                             name = name.replace('/','.').replace('\\','.');
                             boolean load = true;
-                            for(String f : filter) {
-                                if (name.startsWith(f)) {
-                                    load = false;
-                                    break;
+                            if(SpigotPie.getEnvironment().isFilterWhitelistMode()) {
+                                load = false;
+                                for (String f : filter) {
+                                    if (name.startsWith(f)) {
+                                        load = true;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                for (String f : filter) {
+                                    if (name.startsWith(f)) {
+                                        load = false;
+                                        break;
+                                    }
                                 }
                             }
                             if(!load)continue;
@@ -59,7 +73,6 @@ public class SimpleInstanceManager {
         return classes;
     }
 
-    //TODO: Test on BC
     /**
      * Call on start
      */
@@ -71,26 +84,35 @@ public class SimpleInstanceManager {
                 PieComponent pieComponent = clazz.getDeclaredAnnotation(PieComponent.class);
                 if(SpigotPie.getEnvironment().isBungeeCord() && pieComponent.platform().equals(Platform.SPIGOT))continue;
                 if(!SpigotPie.getEnvironment().isBungeeCord() && pieComponent.platform().equals(Platform.BUNGEE_CORD))continue;
+                //Spigot插件
                 if(!SpigotPie.getEnvironment().isBungeeCord() && clazz.getSuperclass().equals(org.bukkit.plugin.java.JavaPlugin.class)) {
                     Class<? extends org.bukkit.plugin.java.JavaPlugin> clazz2 = (Class<? extends org.bukkit.plugin.java.JavaPlugin>) clazz;
-                    instanceMap.put(clazz.getName(), org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));
+                    addObject(clazz, clazz.getSimpleName().toLowerCase(), org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));
                 }
+                //BC插件
                 if(SpigotPie.getEnvironment().isBungeeCord() && clazz.getSuperclass().equals(net.md_5.bungee.api.plugin.Plugin.class)) {
                     Class<? extends net.md_5.bungee.api.plugin.Plugin> clazz2 = (Class<? extends net.md_5.bungee.api.plugin.Plugin>) clazz;
                     for(net.md_5.bungee.api.plugin.Plugin p : net.md_5.bungee.api.ProxyServer.getInstance().getPluginManager().getPlugins()) {
-                        if(p.getClass().equals(clazz2)) instanceMap.put(clazz.getName(), p);
+                        if(p.getClass().equals(clazz2)) {
+                            addObject(clazz,clazz.getSimpleName().toLowerCase(),p);
+                        }
                     }
                 }
-                //管理实例
+                //管理实例 - 直接定义
                 Object o = !instanceMap.containsKey(clazz.getName()) ? clazz.getConstructor().newInstance():instanceMap.get(clazz.getName());
-                if(!instanceMap.containsKey(clazz.getName()))instanceMap.put(clazz.getName(),o);
+                addObject(clazz,clazz.getSimpleName().toLowerCase(),o);
+                //管理实例 - 深层接口定义
+                for (Class<?> i : clazz.getInterfaces()) {
+                    addObject(i, clazz.getSimpleName().toLowerCase(), o);
+                }
                 //直接注入字段
                 for(Field f : o.getClass().getDeclaredFields()) {
                     if(f.isAnnotationPresent(Wire.class)) {
                         String required = f.getType().getName();
                         if(instanceMap.containsKey(required)) {
                             f.setAccessible(true);
-                            f.set(o,instanceMap.get(required));
+                            Object o1 = getDeclaredInstance(f.getType(),f.getName().toLowerCase());
+                            if(o1!=null)f.set(o,o1);
                         } else {
                             injectionMap.put(f,o);
                         }
@@ -98,13 +120,17 @@ public class SimpleInstanceManager {
                 }
             }
         }
+        //延迟注入字段
         for(Field f : injectionMap.keySet()) {
             if(f.isAnnotationPresent(Wire.class)) {
                 String required = f.getType().getName();
                 if(instanceMap.containsKey(required)) {
                     f.setAccessible(true);
-                    f.set(injectionMap.get(f),instanceMap.get(required));
-                    injectionMap.remove(f);
+                    Object o1 = getDeclaredInstance(f.getType(),f.getName().toLowerCase());
+                    if(o1!=null) {
+                        f.set(injectionMap.get(f),o1);
+                        injectionMap.remove(f);
+                    }
                 }
             }
         }
@@ -114,12 +140,14 @@ public class SimpleInstanceManager {
             System.err.println("[警告] 仍有以下声明的字段没有得到注入");
             System.err.println("[WARN] Field didn't inject:");
             for(Field f : injectionMap.keySet()) {
-                System.err.println("[Field]{"+f.getName()+"},[Require]{"+injectionMap.get(f)+"};");
+                System.err.println("[Field]{"+f.getName()+"},[Required By]{"+injectionMap.get(f)+"};");
             }
             System.err.println("[警告] 可能是因为尝试Wire不受管理的Class");
             System.err.println("[WARN] Maybe tried to inject unmanaged class");
+            System.err.println("[警告] 或者在拥有多个同类型实例时没有选用正确的字段名称");
+            System.err.println("[WARN] Or if you have multiple instances of the same type, you do not use the correct field name");
             System.err.println("[警告] 将会保留默认值");
-            System.err.println("[WARN] Will stay default");
+            System.err.println("[WARN] Will stay as default");
             System.err.println("===============[Spigot Pie - Warning]===============");
         }
 
@@ -170,19 +198,54 @@ public class SimpleInstanceManager {
      * Get declared instance
      * @param name Class name
      * @return The instance. Not found -> null.
+     * @deprecated Using new management solution
      */
+    @SneakyThrows
     @Nullable
+    @Deprecated
     public static Object getDeclaredInstance(String name) {
-        return instanceMap.get(name);
+        Class<?> c = Class.forName(name);
+        return getDeclaredInstance(c, c.getSimpleName());
     }
 
     /**
      * Get declared instance
      * @param clazz Class
      * @return The instance. Not found -> null.
+     * @deprecated Using new management solution
      */
     @Nullable
+    @Deprecated
     public static Object getDeclaredInstance(Class<?> clazz) {
-        return instanceMap.get(clazz.getName());
+        return instanceMap.get(clazz.getName()).get(clazz.getSimpleName().toLowerCase());
+    }
+
+    /**
+     * Get declared instance
+     * @param clazz Class
+     * @param name Name registered in instanceMap, case-insensitive
+     * @return The instance. Not found -> null.
+     */
+    public static Object getDeclaredInstance(Class<?> clazz,String name) {
+        Map<String,Object> iMap =  instanceMap.get(clazz.getName());
+        if(iMap==null)return null;
+        if(iMap.size()==1)return iMap.values().toArray()[0];
+        else {
+            return iMap.get(name.toLowerCase());
+        }
+    }
+
+    private static void addObject(Class<?> clazz,String name,Object value) throws NameConflictException {
+        Map<String,Object> objectMap;
+        if(instanceMap.containsKey(clazz.getName())) {
+            objectMap = instanceMap.get(clazz.getName());
+            if(objectMap.containsKey(name))
+                throw new NameConflictException("Conflict in "+clazz.getName()+" as "+name+" between "+value+"(new) and "+objectMap.get(name)+"(original)");
+        } else {
+            objectMap = new ConcurrentHashMap<>();
+        }
+        objectMap.put(name,value);
+        instanceMap.remove(clazz.getName());
+        instanceMap.put(clazz.getName(), objectMap);
     }
 }
