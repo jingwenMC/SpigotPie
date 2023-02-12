@@ -80,17 +80,20 @@ public class SimpleInstanceManager {
         if(init)return;
         for (Class<?> clazz : scanClassByUrlClassLoader((URLClassLoader) SpigotPie.class.getClassLoader())) {
             if(clazz == null)continue;
+            //SpigotPie does NOT support interfaces and annotations
+            if(clazz.isInterface())continue;
+            if(clazz.isAnnotation())continue;
             if(clazz.isAnnotationPresent(PieComponent.class)) {
                 PieComponent pieComponent = clazz.getDeclaredAnnotation(PieComponent.class);
                 if(SpigotPie.getEnvironment().isBungeeCord() && pieComponent.platform().equals(Platform.SPIGOT))continue;
                 if(!SpigotPie.getEnvironment().isBungeeCord() && pieComponent.platform().equals(Platform.BUNGEE_CORD))continue;
                 //Spigot插件
-                if(!SpigotPie.getEnvironment().isBungeeCord() && clazz.getSuperclass().equals(org.bukkit.plugin.java.JavaPlugin.class)) {
+                if(!SpigotPie.getEnvironment().isBungeeCord() && org.bukkit.plugin.java.JavaPlugin.class.equals(clazz.getSuperclass())) {
                     Class<? extends org.bukkit.plugin.java.JavaPlugin> clazz2 = (Class<? extends org.bukkit.plugin.java.JavaPlugin>) clazz;
                     addObject(clazz, clazz.getSimpleName().toLowerCase(), org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));
                 }
                 //BC插件
-                if(SpigotPie.getEnvironment().isBungeeCord() && clazz.getSuperclass().equals(net.md_5.bungee.api.plugin.Plugin.class)) {
+                if(SpigotPie.getEnvironment().isBungeeCord() && net.md_5.bungee.api.plugin.Plugin.class.equals(clazz.getSuperclass())) {
                     Class<? extends net.md_5.bungee.api.plugin.Plugin> clazz2 = (Class<? extends net.md_5.bungee.api.plugin.Plugin>) clazz;
                     for(net.md_5.bungee.api.plugin.Plugin p : net.md_5.bungee.api.ProxyServer.getInstance().getPluginManager().getPlugins()) {
                         if(p.getClass().equals(clazz2)) {
