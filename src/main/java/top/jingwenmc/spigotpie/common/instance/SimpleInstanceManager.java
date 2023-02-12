@@ -85,33 +85,38 @@ public class SimpleInstanceManager {
             if(clazz.isAnnotation())continue;
             if(clazz.isAnnotationPresent(PieComponent.class)) {
                 PieComponent pieComponent = clazz.getDeclaredAnnotation(PieComponent.class);
+                String name = clazz.getSimpleName().toLowerCase();
+                if(pieComponent.name() != null && !pieComponent.name().isEmpty()) {
+                    name = pieComponent.name().toLowerCase();
+                }
                 if(SpigotPie.getEnvironment().isBungeeCord() && pieComponent.platform().equals(Platform.SPIGOT))continue;
                 if(!SpigotPie.getEnvironment().isBungeeCord() && pieComponent.platform().equals(Platform.BUNGEE_CORD))continue;
                 //Spigot插件
                 if(!SpigotPie.getEnvironment().isBungeeCord() && org.bukkit.plugin.java.JavaPlugin.class.equals(clazz.getSuperclass())) {
                     Class<? extends org.bukkit.plugin.java.JavaPlugin> clazz2 = (Class<? extends org.bukkit.plugin.java.JavaPlugin>) clazz;
-                    addObject(clazz, clazz.getSimpleName().toLowerCase(), org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));
+                    addObject(clazz, name, org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));
                 }
                 //BC插件
                 if(SpigotPie.getEnvironment().isBungeeCord() && net.md_5.bungee.api.plugin.Plugin.class.equals(clazz.getSuperclass())) {
                     Class<? extends net.md_5.bungee.api.plugin.Plugin> clazz2 = (Class<? extends net.md_5.bungee.api.plugin.Plugin>) clazz;
                     for(net.md_5.bungee.api.plugin.Plugin p : net.md_5.bungee.api.ProxyServer.getInstance().getPluginManager().getPlugins()) {
                         if(p.getClass().equals(clazz2)) {
-                            addObject(clazz,clazz.getSimpleName().toLowerCase(),p);
+                            addObject(clazz, name, p);
+                            break;
                         }
                     }
                 }
                 //管理实例 - 直接定义
                 Object o = !instanceMap.containsKey(clazz.getName()) ? clazz.getConstructor().newInstance():instanceMap.get(clazz.getName());
-                addObject(clazz,clazz.getSimpleName().toLowerCase(),o);
+                addObject(clazz, name, o);
                 //管理实例 - 深层接口定义
                 for (Class<?> i : clazz.getInterfaces()) {
-                    addObject(i, clazz.getSimpleName().toLowerCase(), o);
+                    addObject(i, name , o);
                 }
                 //直接注入字段
                 for(Field f : o.getClass().getDeclaredFields()) {
                     if(f.isAnnotationPresent(Wire.class)) {
-                        String required = f.getType().getName();
+                        String required = f.getType().getName().toLowerCase();
                         if(instanceMap.containsKey(required)) {
                             f.setAccessible(true);
                             Object o1 = getDeclaredInstance(f.getType(),f.getName().toLowerCase());
@@ -126,7 +131,7 @@ public class SimpleInstanceManager {
         //延迟注入字段
         for(Field f : injectionMap.keySet()) {
             if(f.isAnnotationPresent(Wire.class)) {
-                String required = f.getType().getName();
+                String required = f.getType().getName().toLowerCase();
                 if(instanceMap.containsKey(required)) {
                     f.setAccessible(true);
                     Object o1 = getDeclaredInstance(f.getType(),f.getName().toLowerCase());
@@ -201,7 +206,7 @@ public class SimpleInstanceManager {
      * Get declared instance
      * @param name Class name
      * @return The instance. Not found -> null.
-     * @deprecated Using new management solution
+     * @deprecated Using new management solution, will be REMOVED in 3.0
      */
     @SneakyThrows
     @Nullable
@@ -215,7 +220,7 @@ public class SimpleInstanceManager {
      * Get declared instance
      * @param clazz Class
      * @return The instance. Not found -> null.
-     * @deprecated Using new management solution
+     * @deprecated Using new management solution, will be REMOVED in 3.0
      */
     @Nullable
     @Deprecated
@@ -229,6 +234,7 @@ public class SimpleInstanceManager {
      * @param name Name registered in instanceMap, case-insensitive
      * @return The instance. Not found -> null.
      */
+    @Nullable
     public static Object getDeclaredInstance(Class<?> clazz,String name) {
         Map<String,Object> iMap =  instanceMap.get(clazz.getName());
         if(iMap==null)return null;
