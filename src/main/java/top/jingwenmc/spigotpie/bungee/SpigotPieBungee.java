@@ -5,6 +5,7 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Plugin;
+import top.jingwenmc.spigotpie.PieDistroConfigurations;
 import top.jingwenmc.spigotpie.bungee.command.CommandManager;
 import top.jingwenmc.spigotpie.bungee.configuration.BungeeConfigurationAdapter;
 import top.jingwenmc.spigotpie.common.PieEnvironment;
@@ -12,6 +13,7 @@ import top.jingwenmc.spigotpie.common.SpigotPie;
 import top.jingwenmc.spigotpie.common.command.CommandTreeNode;
 import top.jingwenmc.spigotpie.common.instance.SimpleInstanceManager;
 import top.jingwenmc.spigotpie.common.lang.PieLang;
+import top.jingwenmc.spigotpie.bungee.metrics.Metrics;
 
 import java.util.logging.Level;
 
@@ -19,9 +21,17 @@ public final class SpigotPieBungee extends Plugin {
 
     @Getter
     private static Plugin pluginInstance = null;
+    private static Metrics metrics;
+
+    Metrics getMetrics() {
+        return metrics;
+    }
 
     public static void inject(Plugin plugin,boolean filterWhitelistMode,String... filterPackagePath) {
         pluginInstance = plugin;
+        metrics = new Metrics(pluginInstance,17704);
+        metrics.addCustomChart(new Metrics.SimplePie("spigot_pie_api_version", () -> String.valueOf(PieDistroConfigurations.API_VERSION)));
+        metrics.addCustomChart(new Metrics.SimplePie("spigot_pie_version", () -> PieDistroConfigurations.DISTRO_VERSION));
         try {
             SpigotPie.loadPlugin(
                     PieEnvironment.builder()
