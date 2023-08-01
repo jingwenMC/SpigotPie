@@ -1,11 +1,11 @@
 package top.jingwenmc.spigotpie.bungee;
 
 import lombok.Getter;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Plugin;
+import top.jingwenmc.spigotpie.PieDistroConfigurations;
 import top.jingwenmc.spigotpie.bungee.command.CommandManager;
 import top.jingwenmc.spigotpie.bungee.configuration.BungeeConfigurationAdapter;
 import top.jingwenmc.spigotpie.common.PieEnvironment;
@@ -15,20 +15,29 @@ import top.jingwenmc.spigotpie.common.instance.SimpleInstanceManager;
 import top.jingwenmc.spigotpie.common.lang.PieLang;
 
 import java.util.logging.Level;
+import top.jingwenmc.spigotpie.bungee.metrics.Metrics;
 
 public final class SpigotPieBungee extends Plugin {
-
     @Getter
     private static Plugin pluginInstance = null;
+    private static Metrics metrics;
 
-    public static void inject(Plugin plugin,String... filterPackagePath) {
+    Metrics getMetrics() {
+        return metrics;
+    }
+
+    public static void inject(Plugin plugin,boolean filterWhitelistMode,String... filterPackagePath) {
         pluginInstance = plugin;
+        metrics = new Metrics(pluginInstance,17704);
+        metrics.addCustomChart(new Metrics.SimplePie("spigot_pie_api_version", () -> String.valueOf(PieDistroConfigurations.API_VERSION)));
+        metrics.addCustomChart(new Metrics.SimplePie("spigot_pie_version", () -> PieDistroConfigurations.DISTRO_VERSION));
         try {
             SpigotPie.loadPlugin(
                     PieEnvironment.builder()
                             .bungeeCord(true)
                             .asDedicatePlugin(false)
                             .filterPackagePath(filterPackagePath)
+                            .filterWhitelistMode(filterWhitelistMode)
                             .workFolder(pluginInstance.getDataFolder())
                             .configurationAdapter(BungeeConfigurationAdapter.class)
                             .logger(plugin.getLogger())
@@ -37,6 +46,10 @@ public final class SpigotPieBungee extends Plugin {
             throw new RuntimeException(e);
         }
         postLoad();
+    }
+
+    public static void inject(Plugin plugin, String... filterPackagePath) {
+        inject(plugin,false,filterPackagePath);
     }
 
     public static void postLoad() {

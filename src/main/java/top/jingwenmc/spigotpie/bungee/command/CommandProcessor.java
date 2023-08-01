@@ -3,16 +3,13 @@ package top.jingwenmc.spigotpie.bungee.command;
 import lombok.SneakyThrows;
 import top.jingwenmc.spigotpie.common.command.GenericConsumer;
 import top.jingwenmc.spigotpie.common.command.PieCommand;
-import top.jingwenmc.spigotpie.common.instance.Accepts;
-import top.jingwenmc.spigotpie.common.instance.PieComponent;
-import top.jingwenmc.spigotpie.common.instance.PreProcessor;
-import top.jingwenmc.spigotpie.common.instance.Wire;
+import top.jingwenmc.spigotpie.common.instance.*;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-@PieComponent
+@PieComponent(platform = Platform.BUNGEE_CORD)
 public class CommandProcessor implements PreProcessor {
     @Wire
     CommandManager commandManager;

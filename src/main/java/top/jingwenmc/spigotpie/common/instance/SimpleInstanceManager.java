@@ -1,5 +1,6 @@
 package top.jingwenmc.spigotpie.common.instance;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.jingwenmc.spigotpie.common.SpigotPie;
 
@@ -23,9 +24,7 @@ public class SimpleInstanceManager {
 
     public static List<Class<?>> scanClassByUrlClassLoader(URLClassLoader cl) throws Exception {
         List<Class<?>> classes = new ArrayList<>();
-        List<String> filter = new ArrayList<>(Arrays.asList(SpigotPie.getEnvironment().getFilterPackagePath()));
-        if(SpigotPie.getEnvironment().isBungeeCord()) filter.add("top.jingwenmc.spigotpie.spigot");
-        else filter.add("top.jingwenmc.spigotpie.bungee");
+        List<String> filter = getFilter();
         for(URL url : cl.getURLs()) {
             if(url.getPath().endsWith(".jar"))
                 try(JarFile jarFile = new JarFile(url.getPath())){
@@ -37,29 +36,53 @@ public class SimpleInstanceManager {
                             name = name.substring(0,name.length()-6);
                             name = name.replace('/','.').replace('\\','.');
                             boolean load = true;
-                            for(String f : filter) {
-                                if (name.startsWith(f)) {
-                                    load = false;
-                                    break;
+                            if(SpigotPie.getEnvironment().isFilterWhitelistMode()) {
+                                load = false;
+                                for (String f : filter) {
+                                    if (name.startsWith(f)) {
+                                        load = true;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                for (String f : filter) {
+                                    if (name.startsWith(f)) {
+                                        load = false;
+                                        break;
+                                    }
                                 }
                             }
-                            if(!load)continue;
-                            try {
-                                Class<?> clazz = cl.loadClass(name);
-                                classes.add(clazz);
-                            }catch (ClassNotFoundException | NoClassDefFoundError e) {
-                                System.err.println("Class Not Found: "+name);
-                                System.err.println("Won't create instance for it.");
-                            }
-
+                        if(!load)continue;
+                        try {
+                            Class<?> clazz = cl.loadClass(name);
+                            classes.add(clazz);
+                        }catch (ClassNotFoundException | NoClassDefFoundError e) {
+                            System.err.println("Class Not Found: "+name);
+                            System.err.println("Won't create instance for it.");
                         }
+
                     }
                 }
-        }
-        return classes;
+            }
+    }
+    return classes;
     }
 
-    //TODO: Test on BC
+    @NotNull
+    private static List<String> getFilter() {
+        List<String> filter = new ArrayList<>(Arrays.asList(SpigotPie.getEnvironment().getFilterPackagePath()));
+        if(!SpigotPie.getEnvironment().isFilterWhitelistMode()) {
+            if (SpigotPie.getEnvironment().isBungeeCord()) filter.add("top.jingwenmc.spigotpie.spigot");
+            else filter.add("top.jingwenmc.spigotpie.bungee");
+            filter.add("META-INF");
+        } else {
+            filter.add("top.jingwenmc.spigotpie.common");
+            if (SpigotPie.getEnvironment().isBungeeCord()) filter.add("top.jingwenmc.spigotpie.bungee");
+            else filter.add("top.jingwenmc.spigotpie.spigot");
+        }
+        return filter;
+    }
+
     /**
      * Call on start
      */

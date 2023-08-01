@@ -1,12 +1,12 @@
 package top.jingwenmc.spigotpie.spigot;
 
 import lombok.Getter;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import top.jingwenmc.spigotpie.PieDistroConfigurations;
 import top.jingwenmc.spigotpie.common.lang.PieLang;
 import top.jingwenmc.spigotpie.spigot.command.CommandManager;
 import top.jingwenmc.spigotpie.common.PieEnvironment;
@@ -14,6 +14,7 @@ import top.jingwenmc.spigotpie.common.SpigotPie;
 import top.jingwenmc.spigotpie.common.command.CommandTreeNode;
 import top.jingwenmc.spigotpie.common.instance.SimpleInstanceManager;
 import top.jingwenmc.spigotpie.spigot.configuration.SpigotConfigurationAdapter;
+import top.jingwenmc.spigotpie.spigot.metrics.Metrics;
 
 import java.lang.reflect.Field;
 import java.util.logging.Level;
@@ -21,15 +22,23 @@ import java.util.logging.Level;
 public class SpigotPieSpigot extends JavaPlugin {
     @Getter
     private static JavaPlugin pluginInstance;
+    private static Metrics metrics;
+    protected Metrics getMetrics() {
+        return metrics;
+    }
 
-    public static void inject(JavaPlugin plugin,String... filterPackagePath) {
+    public static void inject(JavaPlugin plugin,boolean filterWhitelistMode,String... filterPackagePath) {
         pluginInstance = plugin;
+        metrics = new Metrics(pluginInstance,17703);
+        metrics.addCustomChart(new Metrics.SimplePie("spigot_pie_api_version", () -> String.valueOf(PieDistroConfigurations.API_VERSION)));
+        metrics.addCustomChart(new Metrics.SimplePie("spigot_pie_version", () -> PieDistroConfigurations.DISTRO_VERSION));
         try {
             SpigotPie.loadPlugin(
                     PieEnvironment.builder()
                             .bungeeCord(false)
                             .asDedicatePlugin(false)
                             .filterPackagePath(filterPackagePath)
+                            .filterWhitelistMode(filterWhitelistMode)
                             .workFolder(pluginInstance.getDataFolder())
                             .configurationAdapter(SpigotConfigurationAdapter.class)
                             .logger(plugin.getLogger())
@@ -38,6 +47,10 @@ public class SpigotPieSpigot extends JavaPlugin {
         } catch (Exception e) {
             throw new RuntimeException("Exception during PostLoad:",e);
         }
+    }
+
+    public static void inject(JavaPlugin plugin,String... filterPackagePath) {
+        inject(plugin,false,filterPackagePath);
     }
 
     public static void postLoad() throws NoSuchFieldException, IllegalAccessException {

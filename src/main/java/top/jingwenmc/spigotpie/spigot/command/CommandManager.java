@@ -4,13 +4,14 @@ import org.bukkit.command.CommandSender;
 import top.jingwenmc.spigotpie.common.command.CommandItem;
 import top.jingwenmc.spigotpie.common.command.CommandTreeNode;
 import top.jingwenmc.spigotpie.common.instance.PieComponent;
+import top.jingwenmc.spigotpie.common.instance.Platform;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Consumer;
 
-@PieComponent
+@PieComponent(platform = Platform.SPIGOT)
 public class CommandManager {
     private final CommandTreeNode root = new CommandTreeNode(null,CommandTreeNode.ROOT_NODE_PATH,null);
 

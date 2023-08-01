@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 public class PieEnvironment {
     private boolean bungeeCord = false;
     private boolean asDedicatePlugin = false;
+    private boolean filterWhitelistMode = false;
     private String[] filterPackagePath = null;
     private File workFolder = new File("");
     private Class<? extends ConfigurationAdapter> configurationAdapter = null;
