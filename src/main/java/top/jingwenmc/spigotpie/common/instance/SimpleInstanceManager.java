@@ -129,7 +129,7 @@ public class SimpleInstanceManager {
                 //直接注入字段
                 for(Field f : o.getClass().getDeclaredFields()) {
                     if(f.isAnnotationPresent(Wire.class)) {
-                        String required = f.getType().getName().toLowerCase();
+                        String required = f.getType().getName();
                         if(instanceMap.containsKey(required)) {
                             f.setAccessible(true);
                             Object o1 = getDeclaredInstance(f.getType(),f.getName().toLowerCase());
@@ -144,7 +144,7 @@ public class SimpleInstanceManager {
         //延迟注入字段
         for(Field f : injectionMap.keySet()) {
             if(f.isAnnotationPresent(Wire.class)) {
-                String required = f.getType().getName().toLowerCase();
+                String required = f.getType().getName();
                 if(instanceMap.containsKey(required)) {
                     f.setAccessible(true);
                     Object o1 = getDeclaredInstance(f.getType(),f.getName().toLowerCase());
@@ -249,7 +249,7 @@ public class SimpleInstanceManager {
      */
     @Nullable
     public static Object getDeclaredInstance(Class<?> clazz,String name) {
-        Map<String,Object> iMap =  instanceMap.get(clazz.getName());
+        Map<String,Object> iMap = instanceMap.get(clazz.getName());
         if(iMap==null)return null;
         if(iMap.size()==1)return iMap.values().toArray()[0];
         else {
