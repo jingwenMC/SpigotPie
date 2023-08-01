@@ -91,10 +91,12 @@ public class SimpleInstanceManager {
                 }
                 if(SpigotPie.getEnvironment().isBungeeCord() && pieComponent.platform().equals(Platform.SPIGOT))continue;
                 if(!SpigotPie.getEnvironment().isBungeeCord() && pieComponent.platform().equals(Platform.BUNGEE_CORD))continue;
+                boolean flag = false;
                 //Spigot插件
                 if(!SpigotPie.getEnvironment().isBungeeCord() && org.bukkit.plugin.java.JavaPlugin.class.equals(clazz.getSuperclass())) {
                     Class<? extends org.bukkit.plugin.java.JavaPlugin> clazz2 = (Class<? extends org.bukkit.plugin.java.JavaPlugin>) clazz;
                     addObject(clazz, name, org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));
+                    flag = true;
                 }
                 //BC插件
                 if(SpigotPie.getEnvironment().isBungeeCord() && net.md_5.bungee.api.plugin.Plugin.class.equals(clazz.getSuperclass())) {
@@ -102,13 +104,14 @@ public class SimpleInstanceManager {
                     for(net.md_5.bungee.api.plugin.Plugin p : net.md_5.bungee.api.ProxyServer.getInstance().getPluginManager().getPlugins()) {
                         if(p.getClass().equals(clazz2)) {
                             addObject(clazz, name, p);
+                            flag = true;
                             break;
                         }
                     }
                 }
                 //管理实例 - 直接定义
                 Object o = !instanceMap.containsKey(clazz.getName()) ? clazz.getConstructor().newInstance():instanceMap.get(clazz.getName());
-                addObject(clazz, name, o);
+                if(!flag)addObject(clazz, name, o);
                 //管理实例 - 深层接口定义
                 for (Class<?> i : clazz.getInterfaces()) {
                     addObject(i, name , o);
