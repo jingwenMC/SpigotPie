@@ -10,4 +10,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface PieComponent {
     Platform platform() default Platform.BOTH;
+
+    String name() default "";
 }

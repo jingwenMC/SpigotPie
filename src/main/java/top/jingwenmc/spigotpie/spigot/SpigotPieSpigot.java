@@ -59,7 +59,7 @@ public class SpigotPieSpigot extends JavaPlugin {
         Field commandMapField = SimplePluginManager.class.getDeclaredField("commandMap");
         commandMapField.setAccessible(true);
         commandMap = (SimpleCommandMap) commandMapField.get(pluginManager);
-        CommandManager commandManager = (CommandManager) SimpleInstanceManager.getDeclaredInstance(CommandManager.class);
+        CommandManager commandManager = (CommandManager) SimpleInstanceManager.getDeclaredInstance(CommandManager.class,CommandManager.class.getSimpleName());
         assert commandManager != null;
         for(String commandName : commandManager.getAllCommands()) {
             commandMap.register("pie_"+pluginInstance.getName().toLowerCase(), new Command(commandName) {
