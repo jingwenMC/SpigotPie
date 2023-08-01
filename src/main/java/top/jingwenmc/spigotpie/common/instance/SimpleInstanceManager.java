@@ -1,6 +1,7 @@
 package top.jingwenmc.spigotpie.common.instance;
 
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.jingwenmc.spigotpie.common.SpigotPie;
 
@@ -24,12 +25,7 @@ public class SimpleInstanceManager {
 
     public static List<Class<?>> scanClassByUrlClassLoader(URLClassLoader cl) throws Exception {
         List<Class<?>> classes = new ArrayList<>();
-        List<String> filter = new ArrayList<>(Arrays.asList(SpigotPie.getEnvironment().getFilterPackagePath()));
-        if(!SpigotPie.getEnvironment().isFilterWhitelistMode()) {
-            if (SpigotPie.getEnvironment().isBungeeCord()) filter.add("top.jingwenmc.spigotpie.spigot");
-            else filter.add("top.jingwenmc.spigotpie.bungee");
-            filter.add("META-INF");
-        }
+        List<String> filter = getFilterStrings();
         for(URL url : cl.getURLs()) {
             if(url.getPath().endsWith(".jar"))
                 try(JarFile jarFile = new JarFile(url.getPath())){
@@ -71,6 +67,20 @@ public class SimpleInstanceManager {
                 }
         }
         return classes;
+    }
+
+    @NotNull
+    private static List<String> getFilterStrings() {
+        List<String> filter = new ArrayList<>(Arrays.asList(SpigotPie.getEnvironment().getFilterPackagePath()));
+        if(!SpigotPie.getEnvironment().isFilterWhitelistMode()) {
+            if (SpigotPie.getEnvironment().isBungeeCord()) filter.add("top.jingwenmc.spigotpie.spigot");
+            else filter.add("top.jingwenmc.spigotpie.bungee");
+            filter.add("META-INF");
+        } else {
+            if (SpigotPie.getEnvironment().isBungeeCord()) filter.add("top.jingwenmc.spigotpie.bungee");
+            else filter.add("top.jingwenmc.spigotpie.spigot");
+        }
+        return filter;
     }
 
     /**
