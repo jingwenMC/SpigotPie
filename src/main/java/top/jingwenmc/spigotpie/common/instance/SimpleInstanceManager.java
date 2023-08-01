@@ -249,17 +249,16 @@ public class SimpleInstanceManager {
      */
     @Nullable
     public static Object getDeclaredInstance(Class<?> clazz,String name) {
-        System.out.println("getObject:"+clazz+";"+name);
         Map<String,Object> iMap = instanceMap.get(clazz.getName());
-        if(iMap==null)return null;
-        if(iMap.size()==1)return iMap.values().toArray()[0];
-        else {
-            return iMap.get(name.toLowerCase());
+        if(iMap==null) {
+            SpigotPie.getEnvironment().getLogger().warning("[SpigotPie] Class:{"+clazz+"},name:{"+name+"} not found (typeA)");
+            return null;
         }
+        if(iMap.get(name.toLowerCase()) == null)SpigotPie.getEnvironment().getLogger().warning("[SpigotPie] Class:{"+clazz+"},name:{"+name+"} not found (typeB)");
+        return iMap.get(name.toLowerCase());
     }
 
     private static void addObject(Class<?> clazz,String name,Object value) throws NameConflictException {
-        System.out.println("addObject:"+clazz+";"+name+";"+value);
         Map<String,Object> objectMap;
         if(instanceMap.containsKey(clazz.getName())) {
             objectMap = instanceMap.get(clazz.getName());
