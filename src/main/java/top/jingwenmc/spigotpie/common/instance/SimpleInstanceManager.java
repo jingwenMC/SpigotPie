@@ -249,6 +249,7 @@ public class SimpleInstanceManager {
      */
     @Nullable
     public static Object getDeclaredInstance(Class<?> clazz,String name) {
+        System.out.println("getObject:"+clazz+";"+name);
         Map<String,Object> iMap = instanceMap.get(clazz.getName());
         if(iMap==null)return null;
         if(iMap.size()==1)return iMap.values().toArray()[0];
@@ -258,11 +259,12 @@ public class SimpleInstanceManager {
     }
 
     private static void addObject(Class<?> clazz,String name,Object value) throws NameConflictException {
+        System.out.println("addObject:"+clazz+";"+name+";"+value);
         Map<String,Object> objectMap;
         if(instanceMap.containsKey(clazz.getName())) {
             objectMap = instanceMap.get(clazz.getName());
             if(objectMap.containsKey(name))
-                throw new NameConflictException("Conflict in "+clazz.getName()+" as "+name+" between "+value+"(new) and "+objectMap.get(name)+"(original)");
+                throw new NameConflictException("Conflict in "+clazz.getName()+" as "+ name +" between "+value+"(new) and "+objectMap.get(name)+"(original)");
         } else {
             objectMap = new ConcurrentHashMap<>();
         }
