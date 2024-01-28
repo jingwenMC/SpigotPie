@@ -122,7 +122,7 @@ public class SimpleInstanceManager {
                 if(!ObjectManager.contains(clazz))ObjectManager.addObject(clazz,name,o);
                 //因逻辑增多，统一延迟注入字段
                 for(Field f : o.getClass().getDeclaredFields()) {
-                    injectionMap.put(f,o);
+                    if(f.isAnnotationPresent(Wire.class)) injectionMap.put(f,o);
                 }
                 preProcess.add(o);
             }
