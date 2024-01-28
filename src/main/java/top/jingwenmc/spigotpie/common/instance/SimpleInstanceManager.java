@@ -119,12 +119,14 @@ public class SimpleInstanceManager {
                 }
                 //创建管理实例
                 Object o = clazz.getConstructor().newInstance();
-                if(!ObjectManager.contains(clazz))ObjectManager.addObject(clazz,name,o);
+                if(!ObjectManager.contains(clazz)) {
+                    ObjectManager.addObject(clazz,name,o);
+                    preProcess.add(o);
+                }
                 //因逻辑增多，统一延迟注入字段
                 for(Field f : o.getClass().getDeclaredFields()) {
                     if(f.isAnnotationPresent(Wire.class)) injectionMap.put(f,o);
                 }
-                preProcess.add(o);
             }
         }
         for(Field f : injectionMap.keySet()) {
