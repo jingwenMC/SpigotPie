@@ -6,7 +6,7 @@
 
     <groupId>top.jingwenmc</groupId>
     <artifactId>SpigotPie</artifactId>
-    <version>2.1.0-alpha</version>
+    <version>2.1.0</version>
     <packaging>jar</packaging>
 
     <name>SpigotPie</name>
