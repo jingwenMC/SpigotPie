@@ -104,6 +104,7 @@ public class SimpleInstanceManager {
                     Class<? extends org.bukkit.plugin.java.JavaPlugin> clazz2 = (Class<? extends org.bukkit.plugin.java.JavaPlugin>) clazz;
                     ObjectManager.addObject(clazz,name,org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));
                     preProcess.add(org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));
+                    continue;
                 }
                 if(SpigotPie.getEnvironment().isBungeeCord() && clazz.getSuperclass().equals(net.md_5.bungee.api.plugin.Plugin.class)) {
                     Class<? extends net.md_5.bungee.api.plugin.Plugin> clazz2 = (Class<? extends net.md_5.bungee.api.plugin.Plugin>) clazz;
@@ -111,10 +112,12 @@ public class SimpleInstanceManager {
                         if(p.getClass().equals(clazz2)) {
                             ObjectManager.addObject(clazz,name,p);
                             preProcess.add(p);
+                            break;
                         }
                     }
+                    continue;
                 }
-                //管理实例
+                //创建管理实例
                 Object o = clazz.getConstructor().newInstance();
                 if(!ObjectManager.contains(clazz))ObjectManager.addObject(clazz,name,o);
                 //因逻辑增多，统一延迟注入字段
