@@ -11,7 +11,7 @@ import top.jingwenmc.spigotpie.bungee.configuration.BungeeConfigurationAdapter;
 import top.jingwenmc.spigotpie.common.PieEnvironment;
 import top.jingwenmc.spigotpie.common.SpigotPie;
 import top.jingwenmc.spigotpie.common.command.CommandTreeNode;
-import top.jingwenmc.spigotpie.common.instance.SimpleInstanceManager;
+import top.jingwenmc.spigotpie.common.instance.ObjectManager;
 import top.jingwenmc.spigotpie.common.lang.PieLang;
 
 import java.util.logging.Level;
@@ -20,12 +20,8 @@ import top.jingwenmc.spigotpie.bungee.metrics.Metrics;
 public final class SpigotPieBungee extends Plugin {
     @Getter
     private static Plugin pluginInstance = null;
+    @Getter
     private static Metrics metrics;
-
-    Metrics getMetrics() {
-        return metrics;
-    }
-
     public static void inject(Plugin plugin,boolean filterWhitelistMode,String... filterPackagePath) {
         pluginInstance = plugin;
         metrics = new Metrics(pluginInstance,17704);
@@ -48,12 +44,13 @@ public final class SpigotPieBungee extends Plugin {
         postLoad();
     }
 
+    @SuppressWarnings("unused")
     public static void inject(Plugin plugin, String... filterPackagePath) {
         inject(plugin,false,filterPackagePath);
     }
 
     public static void postLoad() {
-        CommandManager commandManager = (CommandManager) SimpleInstanceManager.getDeclaredInstance(CommandManager.class);
+        CommandManager commandManager = (CommandManager) ObjectManager.getObject(CommandManager.class,"");
         assert commandManager != null;
         for(String commandName : commandManager.getAllCommands()) {
             pluginInstance.getProxy().getPluginManager().registerCommand(pluginInstance, new Command(commandName) {

@@ -43,8 +43,6 @@ public class SpigotPie {
         } catch (Exception e) {
             environment.getLogger().log(Level.SEVERE,"Failed to load Spigot Pie.");
             environment.getLogger().log(Level.SEVERE,"Spigot Pie加载失败.");
-            environment.getLogger().log(Level.SEVERE,"Possible Reason: Programming error");
-            environment.getLogger().log(Level.SEVERE,"可能的原因: 程序错误");
             environment.getLogger().log(Level.SEVERE,"Check 'Caused by:' to learn more");
             environment.getLogger().log(Level.SEVERE,"查看'Caused by:'了解更多");
             throw new RuntimeException("Exception during Load: Unknown Exception",e);

@@ -1,5 +1,6 @@
 package top.jingwenmc.spigotpie.common.instance;
 
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.jingwenmc.spigotpie.common.SpigotPie;
@@ -18,7 +19,7 @@ import java.util.jar.JarFile;
 
 @SuppressWarnings("unchecked")
 public class SimpleInstanceManager {
-    private static final Map<String,Object> instanceMap = new ConcurrentHashMap<>();
+    //private static final Map<String,Object> instanceMap = new ConcurrentHashMap<>();
     public static final Map<Field,Object> injectionMap = new ConcurrentHashMap<>();
     private static boolean init = false;
 
@@ -87,6 +88,7 @@ public class SimpleInstanceManager {
      * Call on start
      */
     public static void init() throws Exception {
+        List<Object> preProcess = new ArrayList<>();
         if(init)return;
         for (Class<?> clazz : scanClassByUrlClassLoader((URLClassLoader) SpigotPie.class.getClassLoader())) {
             if(clazz == null)continue;
@@ -94,39 +96,40 @@ public class SimpleInstanceManager {
                 PieComponent pieComponent = clazz.getDeclaredAnnotation(PieComponent.class);
                 if(SpigotPie.getEnvironment().isBungeeCord() && pieComponent.platform().equals(Platform.SPIGOT))continue;
                 if(!SpigotPie.getEnvironment().isBungeeCord() && pieComponent.platform().equals(Platform.BUNGEE_CORD))continue;
+                String name = clazz.getSimpleName().toLowerCase();
+                if(pieComponent.name() != null && !pieComponent.name().isEmpty()) {
+                    name = pieComponent.name().toLowerCase();
+                }
                 if(!SpigotPie.getEnvironment().isBungeeCord() && clazz.getSuperclass().equals(org.bukkit.plugin.java.JavaPlugin.class)) {
                     Class<? extends org.bukkit.plugin.java.JavaPlugin> clazz2 = (Class<? extends org.bukkit.plugin.java.JavaPlugin>) clazz;
-                    instanceMap.put(clazz.getName(), org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));
+                    ObjectManager.addObject(clazz,name,org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));
+                    preProcess.add(org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));
                 }
                 if(SpigotPie.getEnvironment().isBungeeCord() && clazz.getSuperclass().equals(net.md_5.bungee.api.plugin.Plugin.class)) {
                     Class<? extends net.md_5.bungee.api.plugin.Plugin> clazz2 = (Class<? extends net.md_5.bungee.api.plugin.Plugin>) clazz;
                     for(net.md_5.bungee.api.plugin.Plugin p : net.md_5.bungee.api.ProxyServer.getInstance().getPluginManager().getPlugins()) {
-                        if(p.getClass().equals(clazz2)) instanceMap.put(clazz.getName(), p);
-                    }
-                }
-                //管理实例
-                Object o = !instanceMap.containsKey(clazz.getName()) ? clazz.getConstructor().newInstance():instanceMap.get(clazz.getName());
-                if(!instanceMap.containsKey(clazz.getName()))instanceMap.put(clazz.getName(),o);
-                //直接注入字段
-                for(Field f : o.getClass().getDeclaredFields()) {
-                    if(f.isAnnotationPresent(Wire.class)) {
-                        String required = f.getType().getName();
-                        if(instanceMap.containsKey(required)) {
-                            f.setAccessible(true);
-                            f.set(o,instanceMap.get(required));
-                        } else {
-                            injectionMap.put(f,o);
+                        if(p.getClass().equals(clazz2)) {
+                            ObjectManager.addObject(clazz,name,p);
+                            preProcess.add(p);
                         }
                     }
                 }
+                //管理实例
+                Object o = clazz.getConstructor().newInstance();
+                if(!ObjectManager.contains(clazz))ObjectManager.addObject(clazz,name,o);
+                //因逻辑增多，统一延迟注入字段
+                for(Field f : o.getClass().getDeclaredFields()) {
+                    injectionMap.put(f,o);
+                }
+                preProcess.add(o);
             }
         }
         for(Field f : injectionMap.keySet()) {
             if(f.isAnnotationPresent(Wire.class)) {
-                String required = f.getType().getName();
-                if(instanceMap.containsKey(required)) {
+                Class<?> required = f.getType();
+                if(ObjectManager.contains(required)) {
                     f.setAccessible(true);
-                    f.set(injectionMap.get(f),instanceMap.get(required));
+                    f.set(injectionMap.get(f),ObjectManager.getObject(required,f.getName()));
                     injectionMap.remove(f);
                 }
             }
@@ -148,7 +151,7 @@ public class SimpleInstanceManager {
 
         //PreProcessor
         try {
-            for (Object o : instanceMap.values()) {
+            for (Object o : preProcess) {
                 Class<?> clazz = o.getClass();
                 if (Arrays.asList(clazz.getInterfaces()).contains(PreProcessor.class)) {
                     Method m = clazz.getDeclaredMethod("preProcess", Object.class);
@@ -159,7 +162,7 @@ public class SimpleInstanceManager {
                         ElementType type = types[0];
                         if (!type.equals(ElementType.TYPE))
                             throw new UnsupportedTargetException("Expecting ElementType.TYPE, got " + type);
-                        for (Object o2 : instanceMap.values()) {
+                        for (Object o2 : preProcess) {
                             if (o2.getClass().isAnnotationPresent(annoClass)) {
                                 m.invoke(o, o2);
                             }
@@ -173,7 +176,7 @@ public class SimpleInstanceManager {
                         ElementType type = types[0];
                         if (!type.equals(ElementType.METHOD))
                             throw new UnsupportedTargetException("Expecting ElementType.METHOD, got " + type);
-                        for (Object o2 : instanceMap.values()) {
+                        for (Object o2 : preProcess) {
                             for (Method m2 : o2.getClass().getMethods()) {
                                 if (m2.isAnnotationPresent(annoClass)) {
                                     m1.invoke(o, o2, m2);
@@ -193,19 +196,24 @@ public class SimpleInstanceManager {
      * Get declared instance
      * @param name Class name
      * @return The instance. Not found -> null.
+     * @deprecated using new management system
      */
+    @SneakyThrows
+    @Deprecated
     @Nullable
     public static Object getDeclaredInstance(String name) {
-        return instanceMap.get(name);
+        return ObjectManager.getObject(Class.forName(name),"");
     }
 
     /**
      * Get declared instance
      * @param clazz Class
      * @return The instance. Not found -> null.
+     * @deprecated using new management system
      */
     @Nullable
+    @Deprecated
     public static Object getDeclaredInstance(Class<?> clazz) {
-        return instanceMap.get(clazz.getName());
+        return ObjectManager.getObject(clazz,"");
     }
 }
