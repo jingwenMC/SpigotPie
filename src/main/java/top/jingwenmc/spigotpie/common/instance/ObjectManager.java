@@ -1,7 +1,11 @@
 package top.jingwenmc.spigotpie.common.instance;
 
+import top.jingwenmc.spigotpie.common.PieEnvironment;
+import top.jingwenmc.spigotpie.common.SpigotPie;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 public class ObjectManager {
     //All name is lower-case
@@ -20,9 +24,16 @@ public class ObjectManager {
     //null = not found
     public static Object getObject(Class<?> type,String name) {
         name = name.toLowerCase();
-        if(typeMap.get(type)==null)return null;
+        if(typeMap.get(type) == null) {
+            SpigotPie.getEnvironment().getLogger().log(Level.WARNING,"Object not found, please check your code. type:" + type + "; name:"+name);
+            return null;
+        }
         Map<String,Object> map = typeMap.get(type);
-        if(map.size()==1)return map.values().stream().findFirst().get();
+        if(map.size()==1) return map.values().stream().findFirst().get();
+        if  (map.get(name) == null) {
+            SpigotPie.getEnvironment().getLogger().log(Level.WARNING,"Object not found, please check your variable in code. type:" + type + "; variable name:"+name);
+            return null;
+        }
         return map.get(name);
     }
 
