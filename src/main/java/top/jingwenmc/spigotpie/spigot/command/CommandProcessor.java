@@ -2,7 +2,6 @@ package top.jingwenmc.spigotpie.spigot.command;
 
 import lombok.SneakyThrows;
 import top.jingwenmc.spigotpie.common.instance.*;
-import top.jingwenmc.spigotpie.spigot.command.CommandManager;
 import top.jingwenmc.spigotpie.common.command.GenericConsumer;
 import top.jingwenmc.spigotpie.common.command.PieCommand;
 
@@ -31,7 +30,8 @@ public class CommandProcessor implements PreProcessor {
             paths.addAll(Arrays.asList(pieCommand.aliases()));
             for(String s : paths) {
                 if(s.isEmpty())continue;
-                commandManager.addCommandNode(s,new GenericConsumer(o,m));
+                if(pieCommand.helpCommand()) commandManager.addCommandNode(s,null,pieCommand);
+                commandManager.addCommandNode(s,new GenericConsumer(pieCommand,o,m),pieCommand);
             }
         }
     }

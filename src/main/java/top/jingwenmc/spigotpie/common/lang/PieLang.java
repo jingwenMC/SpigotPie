@@ -21,6 +21,15 @@ public class PieLang extends BaseConfiguration {
     @Configuration("command_error")
     public static String COMMAND_ERROR = ChatColor.RED+"指令发生错误！请查看控制台！";
 
+    @Configuration("no_perm")
+    public static String NO_PERM = ChatColor.RED+"权限不足!请联系管理员!";
+
     @Configuration("command_fallback")
     public static String COMMAND_FALLBACK = ChatColor.RED+"子指令未找到!请检查输入项目是否正确!";
+
+    @Configuration("help_title")
+    public static String HELP_TITLE = ChatColor.AQUA+"==========[子指令列表]==========";
+
+    @Configuration("help_content")
+    public static String HELP_CONTENT = ChatColor.WHITE+"   [$1] - $2";
 }

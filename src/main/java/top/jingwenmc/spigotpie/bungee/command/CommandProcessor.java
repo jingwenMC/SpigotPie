@@ -30,7 +30,8 @@ public class CommandProcessor implements PreProcessor {
             paths.addAll(Arrays.asList(pieCommand.aliases()));
             for(String s : paths) {
                 if(s.isEmpty())continue;
-                commandManager.addCommandNode(s,new GenericConsumer(o,m));
+                if(pieCommand.helpCommand()) commandManager.addCommandNode(s,null,pieCommand);
+                else commandManager.addCommandNode(s,new GenericConsumer(pieCommand,o,m),pieCommand);
             }
         }
     }
