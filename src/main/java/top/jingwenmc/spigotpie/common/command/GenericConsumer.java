@@ -53,7 +53,7 @@ public class GenericConsumer implements Consumer<CommandItem> {
     @Override
     public void accept(CommandItem commandItem) {
         CommandMessageHandler commandMessageHandler = ObjectManager.getExactObject(CommandMessageHandler.class,pieCommand.messageHandler());
-        if(!commandItem.getSender().hasPermission(pieCommand.permission())) {
+        if(!((pieCommand.permission() == null || pieCommand.permission().isEmpty()) || commandItem.getSender().hasPermission(pieCommand.permission()))) {
             commandMessageHandler.handleMessage(commandItem,MessageType.NO_PERM,new ConcurrentHashMap<>());
             return;
         }

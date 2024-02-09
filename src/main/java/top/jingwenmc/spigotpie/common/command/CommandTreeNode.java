@@ -97,12 +97,13 @@ public class CommandTreeNode {
             Map<String,String> param = new ConcurrentHashMap<>();
             for (String subCommand : treeMap.keySet()) {
                 CommandTreeNode node = treeMap.get(subCommand);
-                if(sender.hasPermission(node.pieCommand.permission())) {
+                if((node.pieCommand.permission() == null || node.pieCommand.permission().isEmpty())||sender.hasPermission(node.pieCommand.permission())) {
                     param.put(subCommand,node.pieCommand.description());
                 }
             }
             CommandMessageHandler commandMessageHandler = ObjectManager.getExactObject(CommandMessageHandler.class,pieCommand.messageHandler());
             commandMessageHandler.handleMessage(new CommandItem(sender,args), MessageType.HELP_PAGE, param);
+            return;
         }
         consumer.accept(new CommandItem(sender,args));
     }
