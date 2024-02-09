@@ -196,29 +196,4 @@ public class SimpleInstanceManager {
         }
         init = true;
     }
-
-    /**
-     * Get declared instance
-     * @param name Class name
-     * @return The instance. Not found -> null.
-     * @deprecated using new management system
-     */
-    @SneakyThrows
-    @Deprecated
-    @Nullable
-    public static Object getDeclaredInstance(String name) {
-        return ObjectManager.getObject(Class.forName(name),"");
-    }
-
-    /**
-     * Get declared instance
-     * @param clazz Class
-     * @return The instance. Not found -> null.
-     * @deprecated using new management system
-     */
-    @Nullable
-    @Deprecated
-    public static Object getDeclaredInstance(Class<?> clazz) {
-        return ObjectManager.getObject(clazz,"");
-    }
 }
