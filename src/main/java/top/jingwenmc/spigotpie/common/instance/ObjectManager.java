@@ -1,6 +1,5 @@
 package top.jingwenmc.spigotpie.common.instance;
 
-import top.jingwenmc.spigotpie.common.PieEnvironment;
 import top.jingwenmc.spigotpie.common.SpigotPie;
 
 import java.util.Map;
@@ -12,7 +11,7 @@ public class ObjectManager {
     private static final Map<Class<?>,Map<String,Object>> typeMap = new ConcurrentHashMap<>();
     protected static void addObject(Class<?> type,String name,Object o) throws NameConflictException {
         name = name.toLowerCase();
-        if(typeMap.get(type)==null)typeMap.put(type,new ConcurrentHashMap<>());
+        typeMap.computeIfAbsent(type, k -> new ConcurrentHashMap<>());
         Map<String,Object> map = typeMap.get(type);
         if(map.containsKey(name))throw new NameConflictException("Name Conflict. type:"+type+";name:"+name+";object:"+o);
         map.put(name,o);
@@ -35,6 +34,10 @@ public class ObjectManager {
             return null;
         }
         return map.get(name);
+    }
+
+    public static <T> T getExactObject(Class<T> type,String name) {
+        return type.cast(getObject(type,name));
     }
 
     public static boolean contains(Class<?> type) {

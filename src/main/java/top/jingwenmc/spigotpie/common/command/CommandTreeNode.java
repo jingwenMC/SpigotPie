@@ -2,7 +2,9 @@ package top.jingwenmc.spigotpie.common.command;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import net.md_5.bungee.api.ChatColor;
+import top.jingwenmc.spigotpie.common.command.message.CommandMessageHandler;
+import top.jingwenmc.spigotpie.common.command.message.MessageType;
+import top.jingwenmc.spigotpie.common.instance.ObjectManager;
 import top.jingwenmc.spigotpie.common.lang.PieLang;
 
 import java.util.ArrayList;
@@ -19,27 +21,16 @@ public class CommandTreeNode {
 
     private final String path;
 
+    private PieCommand pieCommand;
+
     private Consumer<CommandItem> consumer;
 
     private final Map<String, CommandTreeNode> treeMap = new ConcurrentHashMap<>();
-
-    public boolean addCommandNode(CommandTreeNode node) {
-        if(node.parent==this) {
-            treeMap.put(node.path,node);
-            return true;
-        } else {
-            for(CommandTreeNode treeNode: treeMap.values()) {
-                if(treeNode.addCommandNode(node))return true;
-            }
-            return false;
-        }
-    }
-
     public boolean isRoot() {
         return ROOT_NODE_PATH.equalsIgnoreCase(path);
     }
 
-    public void addCommandNode(String path,Consumer<CommandItem> consumer) {
+    public void addCommandNode(String path,Consumer<CommandItem> consumer,PieCommand pieCommand) {
         if(path == null || path.isEmpty()) {
             if(this.path.equalsIgnoreCase(ROOT_NODE_PATH)) {
                 throw new IllegalArgumentException("Illegal path append to root/manager node");
@@ -51,11 +42,11 @@ public class CommandTreeNode {
         }
         ArrayList<String> paths = new ArrayList<>(Arrays.asList(path.split("\\s")));
         if(this.path.equalsIgnoreCase(ROOT_NODE_PATH)) {
-            if(paths.size() == 0) {
+            if(paths.isEmpty()) {
                 throw new IllegalArgumentException("Illegal path append to root/manager node");
             }
         }
-        if(paths.size() == 0) {
+        if(paths.isEmpty()) {
             this.consumer = consumer;
             return;
         }
@@ -67,15 +58,15 @@ public class CommandTreeNode {
         }
         CommandTreeNode node = treeMap.get(sub);
         if(node == null) {
-            node = new CommandTreeNode(this,sub,commandItem -> commandItem.getSender().sendMessage(PieLang.COMMAND_FALLBACK));
+            node = new CommandTreeNode(this,sub,pieCommand,commandItem -> commandItem.getSender().sendMessage(PieLang.COMMAND_FALLBACK));
             treeMap.put(sub,node);
         }
-        node.addCommandNode(sj.toString(),consumer);
+        node.addCommandNode(sj.toString(),consumer,pieCommand);
     }
 
     public CommandTreeNode getCommandNode(CommandTreeNode requestBy, String[] args) {
         ArrayList<String> paths = new ArrayList<>(Arrays.asList(args));
-        if(paths.size() == 0) {
+        if(paths.isEmpty()) {
             return requestBy;
         }
         String sub = paths.get(0);
@@ -89,7 +80,7 @@ public class CommandTreeNode {
 
     public String[] parseArgs(String[] args) {
         ArrayList<String> paths = new ArrayList<>(Arrays.asList(args));
-        if(paths.size() == 0) {
+        if(paths.isEmpty()) {
             return paths.toArray(new String[0]);
         }
         String sub = paths.get(0);
@@ -102,6 +93,18 @@ public class CommandTreeNode {
     }
 
     public void invoke(CommandSender sender,String[] args) {
+        if(pieCommand.helpCommand()) {
+            Map<String,String> param = new ConcurrentHashMap<>();
+            for (String subCommand : treeMap.keySet()) {
+                CommandTreeNode node = treeMap.get(subCommand);
+                if((node.pieCommand.permission() == null || node.pieCommand.permission().isEmpty())||sender.hasPermission(node.pieCommand.permission())) {
+                    param.put(subCommand,node.pieCommand.description());
+                }
+            }
+            CommandMessageHandler commandMessageHandler = ObjectManager.getExactObject(CommandMessageHandler.class,pieCommand.messageHandler());
+            commandMessageHandler.handleMessage(new CommandItem(sender,args), MessageType.HELP_PAGE, param);
+            return;
+        }
         consumer.accept(new CommandItem(sender,args));
     }
 

@@ -1,23 +1,28 @@
 package top.jingwenmc.spigotpie.common.command;
 
 import lombok.SneakyThrows;
-import net.md_5.bungee.api.ChatColor;
+import top.jingwenmc.spigotpie.common.command.message.CommandMessageHandler;
+import top.jingwenmc.spigotpie.common.command.message.MessageType;
+import top.jingwenmc.spigotpie.common.instance.ObjectManager;
 import top.jingwenmc.spigotpie.common.lang.PieLang;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class GenericConsumer implements Consumer<CommandItem> {
     private final Object targetObject;
     private final Method targetMethod;
+    private final PieCommand pieCommand;
     private final List<Parameter> methodParameters;
     private final int leastRequired;
 
-    public GenericConsumer(Object o, Method m) throws TypeErrorException {
+    public GenericConsumer(PieCommand pieCommand,Object o, Method m) throws TypeErrorException {
         targetObject = o;
         targetMethod = m;
+        this.pieCommand = pieCommand;
         methodParameters = new ArrayList<>();
         boolean first = false;
         int leastRequired = 0;
@@ -47,6 +52,11 @@ public class GenericConsumer implements Consumer<CommandItem> {
     @SneakyThrows
     @Override
     public void accept(CommandItem commandItem) {
+        CommandMessageHandler commandMessageHandler = ObjectManager.getExactObject(CommandMessageHandler.class,pieCommand.messageHandler());
+        if(!((pieCommand.permission() == null || pieCommand.permission().isEmpty()) || commandItem.getSender().hasPermission(pieCommand.permission()))) {
+            commandMessageHandler.handleMessage(commandItem,MessageType.NO_PERM,new ConcurrentHashMap<>());
+            return;
+        }
         if(leastRequired == -1) {
             targetMethod.invoke(targetObject,commandItem);
             return;
@@ -85,11 +95,15 @@ public class GenericConsumer implements Consumer<CommandItem> {
         if(lock)args = commandItem.getArgs();
         int length = args.length;
         if(length<leastRequired){
-            commandItem.getSender().sendMessage(PieLang.TOO_FEW_ARGS.replace("$1",String.valueOf(leastRequired)));
+            Map<String,String> param = new ConcurrentHashMap<>();
+            param.put("$1",String.valueOf(leastRequired));
+            commandMessageHandler.handleMessage(commandItem, MessageType.TOO_FEW_ARGS,param);
             return;
         }
         if(length> methodParameters.size()){
-            commandItem.getSender().sendMessage(PieLang.TOO_MANY_ARGS.replace("$1",String.valueOf(methodParameters.size())));
+            Map<String,String> param = new ConcurrentHashMap<>();
+            param.put("$1",String.valueOf(methodParameters.size()));
+            commandMessageHandler.handleMessage(commandItem, MessageType.TOO_MANY_ARGS,param);
             return;
         }
         List<Object> parameters = new ArrayList<>();

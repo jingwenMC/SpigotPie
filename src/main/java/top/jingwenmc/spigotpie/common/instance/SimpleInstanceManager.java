@@ -1,8 +1,6 @@
 package top.jingwenmc.spigotpie.common.instance;
 
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import top.jingwenmc.spigotpie.common.SpigotPie;
 
 import java.lang.annotation.Annotation;
@@ -195,30 +193,5 @@ public class SimpleInstanceManager {
             throw new RuntimeException("Exception during PreProcess: ",e);
         }
         init = true;
-    }
-
-    /**
-     * Get declared instance
-     * @param name Class name
-     * @return The instance. Not found -> null.
-     * @deprecated using new management system
-     */
-    @SneakyThrows
-    @Deprecated
-    @Nullable
-    public static Object getDeclaredInstance(String name) {
-        return ObjectManager.getObject(Class.forName(name),"");
-    }
-
-    /**
-     * Get declared instance
-     * @param clazz Class
-     * @return The instance. Not found -> null.
-     * @deprecated using new management system
-     */
-    @Nullable
-    @Deprecated
-    public static Object getDeclaredInstance(Class<?> clazz) {
-        return ObjectManager.getObject(clazz,"");
     }
 }

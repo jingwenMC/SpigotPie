@@ -3,6 +3,7 @@ package top.jingwenmc.spigotpie.spigot.command;
 import org.bukkit.command.CommandSender;
 import top.jingwenmc.spigotpie.common.command.CommandItem;
 import top.jingwenmc.spigotpie.common.command.CommandTreeNode;
+import top.jingwenmc.spigotpie.common.command.PieCommand;
 import top.jingwenmc.spigotpie.common.instance.PieComponent;
 import top.jingwenmc.spigotpie.common.instance.Platform;
 
@@ -13,10 +14,10 @@ import java.util.function.Consumer;
 
 @PieComponent(platform = Platform.SPIGOT)
 public class CommandManager {
-    private final CommandTreeNode root = new CommandTreeNode(null,CommandTreeNode.ROOT_NODE_PATH,null);
+    private final CommandTreeNode root = new CommandTreeNode(null,CommandTreeNode.ROOT_NODE_PATH,null,null);
 
-    protected void addCommandNode(String path, Consumer<CommandItem> consumer) {
-        root.addCommandNode(path, consumer);
+    protected void addCommandNode(String path, Consumer<CommandItem> consumer, PieCommand pieCommand) {
+        root.addCommandNode(path, consumer, pieCommand);
     }
 
     public String[] getAllCommands() {
