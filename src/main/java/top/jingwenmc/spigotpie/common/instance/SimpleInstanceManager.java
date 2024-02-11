@@ -7,6 +7,7 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -82,6 +83,23 @@ public class SimpleInstanceManager {
         return filter;
     }
 
+    private static Object processObject(Class<?> clazz) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        if(!SpigotPie.getEnvironment().isBungeeCord() && clazz.getSuperclass().equals(org.bukkit.plugin.java.JavaPlugin.class)) {
+            Class<? extends org.bukkit.plugin.java.JavaPlugin> clazz2 = (Class<? extends org.bukkit.plugin.java.JavaPlugin>) clazz;
+            return org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2);
+        }
+        if(SpigotPie.getEnvironment().isBungeeCord() && clazz.getSuperclass().equals(net.md_5.bungee.api.plugin.Plugin.class)) {
+            Class<? extends net.md_5.bungee.api.plugin.Plugin> clazz2 = (Class<? extends net.md_5.bungee.api.plugin.Plugin>) clazz;
+            for(net.md_5.bungee.api.plugin.Plugin p : net.md_5.bungee.api.ProxyServer.getInstance().getPluginManager().getPlugins()) {
+                if(p.getClass().equals(clazz2)) {
+                    return p;
+                }
+            }
+        }
+        //创建管理实例
+        return clazz.getConstructor().newInstance();
+    }
+
     /**
      * Call on start
      */
@@ -98,29 +116,9 @@ public class SimpleInstanceManager {
                 if(pieComponent.name() != null && !pieComponent.name().isEmpty()) {
                     name = pieComponent.name().toLowerCase();
                 }
-                if(!SpigotPie.getEnvironment().isBungeeCord() && clazz.getSuperclass().equals(org.bukkit.plugin.java.JavaPlugin.class)) {
-                    Class<? extends org.bukkit.plugin.java.JavaPlugin> clazz2 = (Class<? extends org.bukkit.plugin.java.JavaPlugin>) clazz;
-                    ObjectManager.addObject(clazz,name,org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));
-                    preProcess.add(org.bukkit.plugin.java.JavaPlugin.getPlugin(clazz2));
-                    continue;
-                }
-                if(SpigotPie.getEnvironment().isBungeeCord() && clazz.getSuperclass().equals(net.md_5.bungee.api.plugin.Plugin.class)) {
-                    Class<? extends net.md_5.bungee.api.plugin.Plugin> clazz2 = (Class<? extends net.md_5.bungee.api.plugin.Plugin>) clazz;
-                    for(net.md_5.bungee.api.plugin.Plugin p : net.md_5.bungee.api.ProxyServer.getInstance().getPluginManager().getPlugins()) {
-                        if(p.getClass().equals(clazz2)) {
-                            ObjectManager.addObject(clazz,name,p);
-                            preProcess.add(p);
-                            break;
-                        }
-                    }
-                    continue;
-                }
-                //创建管理实例
-                Object o = clazz.getConstructor().newInstance();
-                if(!ObjectManager.contains(clazz)) {
-                    ObjectManager.addObject(clazz,name,o);
-                    preProcess.add(o);
-                }
+                Object o = processObject(clazz);
+                ObjectManager.addObject(clazz,name,o);
+                preProcess.add(o);
                 //因逻辑增多，统一延迟注入字段
                 for(Field f : o.getClass().getDeclaredFields()) {
                     if(f.isAnnotationPresent(Wire.class)) injectionMap.put(f,o);
