@@ -14,7 +14,7 @@ public class SpigotPie {
     public static void loadPlugin(PieEnvironment environment) {
         SpigotPie.environment = environment;
         environment.getLogger().info("Language Setting: " + PieLang.LANGUAGE_NAME);
-        environment.getLogger().info("You can change this in SpigotPie/Lang.yml");
+        environment.getLogger().info("You can change this in " + environment.getWorkFolder() +"/SpigotPie/Lang.yml");
         environment.getLogger().info(PieLang.LOADING);
         char[] packageName = new char[]{'t','o','p','.','j','i','n','g','w','e','n','m','c','.','s','p','i','g','o','t','p','i','e','.','c','o','m','m','o','n'};
         if(!environment.isAsDedicatePlugin() && SpigotPie.class.getName().startsWith(new String(packageName))) {
@@ -29,13 +29,13 @@ public class SpigotPie {
             SimpleInstanceManager.init();
             environment.getLogger().info(PieLang.LOADING_INSTANCE_COMPLETE);
             environment.getLogger().info(
-                      "                         \n" +
-                            "     _              _    \n" +
-                            "    /_`_  ._  _ _/_/_/._ \n" +
-                            "     \\__ \\/ __ \\/ / __ `/ __ \\/ __/  / /_/ / / _ \\\n" +
-                            "   ._//_///_//_// /  //_'\n" +
-                            "    /    _/      Version:" + PieDistroConfigurations.DISTRO_VERSION + "\n" +
-                            "                         ");
+                      "                                                                                             \n" +
+                            "                _____     _         _   _____ _                                             \n" +
+                            "               |   __|___|_|___ ___| |_|  _  |_|___                                        \n" +
+                            "               |__   | . | | . | . |  _|   __| | -_|                                       \n" +
+                            "               |_____|  _|_|_  |___|_| |__|  |_|___|                                       \n" +
+                            "                    |_|   |___|      Version:" + PieDistroConfigurations.DISTRO_VERSION + "\n" +
+                            "                                                                                            ");
             environment.getLogger().info(PieLang.LOADING_COMPLETE);
         } catch (Exception e) {
             environment.getLogger().log(Level.SEVERE,PieLang.FAILED_TO_LOAD);
