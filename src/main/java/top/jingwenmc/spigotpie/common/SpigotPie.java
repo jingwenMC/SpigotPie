@@ -13,8 +13,8 @@ public class SpigotPie {
 
     public static void loadPlugin(PieEnvironment environment) {
         SpigotPie.environment = environment;
-        environment.getLogger().info("Language Setting: " + PieLang.LANGUAGE_NAME);
-        environment.getLogger().info("You can change this in " + environment.getWorkFolder() +"/SpigotPie/Lang.yml");
+        environment.getLogger().info("Pie language Setting: " + PieLang.LANGUAGE_NAME);
+        environment.getLogger().info("You can change this in " + environment.getWorkFolder() +"\\SpigotPie\\Lang.yml");
         environment.getLogger().info(PieLang.LOADING);
         char[] packageName = new char[]{'t','o','p','.','j','i','n','g','w','e','n','m','c','.','s','p','i','g','o','t','p','i','e','.','c','o','m','m','o','n'};
         if(!environment.isAsDedicatePlugin() && SpigotPie.class.getName().startsWith(new String(packageName))) {
