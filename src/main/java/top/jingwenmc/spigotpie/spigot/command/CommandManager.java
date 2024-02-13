@@ -42,6 +42,7 @@ public class CommandManager {
                 sender.sendMessage(message);
             }
         };
+
         ArrayList<String> arrayList = new ArrayList<>(Collections.singletonList(commandName));
         arrayList.addAll(Arrays.asList(args));
         CommandTreeNode node = root.getCommandNode(root,arrayList.toArray(new String[0]));

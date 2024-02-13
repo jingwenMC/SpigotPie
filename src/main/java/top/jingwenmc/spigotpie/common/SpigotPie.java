@@ -3,6 +3,7 @@ package top.jingwenmc.spigotpie.common;
 import lombok.Getter;
 import top.jingwenmc.spigotpie.PieDistroConfigurations;
 import top.jingwenmc.spigotpie.common.instance.SimpleInstanceManager;
+import top.jingwenmc.spigotpie.common.lang.PieLang;
 
 import java.util.logging.Level;
 
@@ -12,39 +13,33 @@ public class SpigotPie {
 
     public static void loadPlugin(PieEnvironment environment) {
         SpigotPie.environment = environment;
-        environment.getLogger().info("Starting Library Spigot Pie...");
-        environment.getLogger().info("正在加载Spigot Pie运行库...");
+        environment.getLogger().info("Pie language Setting: " + PieLang.LANGUAGE_NAME);
+        environment.getLogger().info("You can change this in " + environment.getWorkFolder() +"\\SpigotPie\\Lang.yml");
+        environment.getLogger().info(PieLang.LOADING);
         char[] packageName = new char[]{'t','o','p','.','j','i','n','g','w','e','n','m','c','.','s','p','i','g','o','t','p','i','e','.','c','o','m','m','o','n'};
         if(!environment.isAsDedicatePlugin() && SpigotPie.class.getName().startsWith(new String(packageName))) {
-            environment.getLogger().log(Level.SEVERE,"Failed to load Spigot Pie.");
-            environment.getLogger().log(Level.SEVERE,"Spigot Pie加载失败.");
-            environment.getLogger().log(Level.SEVERE,"可能的原因: 潜在的包名冲突");
-            environment.getLogger().log(Level.SEVERE,"Reason: Possible Package Conflict");
+            environment.getLogger().log(Level.SEVERE,PieLang.FAILED_TO_LOAD);
+            environment.getLogger().log(Level.SEVERE,"Reason: " + PieLang.PACKAGE_CONFLICT);
             throw new IllegalStateException("Exception during PreLoad: Developer notice: ensure to use relocation while not using plugin mode!");
         }
 
         //start pie
-        environment.getLogger().info("Loading managed instances...");
-        environment.getLogger().info("正在加载受管理的实例...");
+        environment.getLogger().info(PieLang.LOADING_INSTANCE);
         try {
             SimpleInstanceManager.init();
-            environment.getLogger().info("Managed instances load complete!");
-            environment.getLogger().info("加载受管理的实例完成!");
-            environment.getLogger().info("========================================\n"+
-            "   _____       _             __     ____  _    \n" +
-            "  / ___/____  (_)___ _____  / /_   / __ \\(_)__ \n" +
-            "  \\__ \\/ __ \\/ / __ `/ __ \\/ __/  / /_/ / / _ \\\n" +
-            " ___/ / /_/ / / /_/ / /_/ / /_   / ____/ /  __/\n" +
-            "/____/ .___/_/\\__, /\\____/\\__/  /_/   /_/\\___/ \n" +
-            "    /_/      /____/    Version:"+ PieDistroConfigurations.DISTRO_VERSION);
-            environment.getLogger().info("========================================");
-            environment.getLogger().info("Spigot Pie运行库加载完成!");
-            environment.getLogger().info("Library Spigot Pie Load Complete!");
+            environment.getLogger().info(PieLang.LOADING_INSTANCE_COMPLETE);
+            environment.getLogger().info(
+                      "                                                                                             \n" +
+                            "                _____     _         _   _____ _                                             \n" +
+                            "               |   __|___|_|___ ___| |_|  _  |_|___                                        \n" +
+                            "               |__   | . | | . | . |  _|   __| | -_|                                       \n" +
+                            "               |_____|  _|_|_  |___|_| |__|  |_|___|                                       \n" +
+                            "                    |_|   |___|      Version:" + PieDistroConfigurations.DISTRO_VERSION + "\n" +
+                            "                                                                                            ");
+            environment.getLogger().info(PieLang.LOADING_COMPLETE);
         } catch (Exception e) {
-            environment.getLogger().log(Level.SEVERE,"Failed to load Spigot Pie.");
-            environment.getLogger().log(Level.SEVERE,"Spigot Pie加载失败.");
-            environment.getLogger().log(Level.SEVERE,"Check 'Caused by:' to learn more");
-            environment.getLogger().log(Level.SEVERE,"查看'Caused by:'了解更多");
+            environment.getLogger().log(Level.SEVERE,PieLang.FAILED_TO_LOAD);
+            environment.getLogger().log(Level.SEVERE,PieLang.CHECK_CAUSE);
             throw new RuntimeException("Exception during Load: Unknown Exception",e);
         }
     }
