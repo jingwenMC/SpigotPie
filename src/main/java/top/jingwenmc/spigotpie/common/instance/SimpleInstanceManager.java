@@ -56,7 +56,7 @@ public class SimpleInstanceManager {
                         try {
                             Class<?> clazz = cl.loadClass(name);
                             classes.add(clazz);
-                        }catch (ClassNotFoundException | NoClassDefFoundError e) {
+                        } catch (ClassNotFoundException | NoClassDefFoundError e) {
                             System.err.println("Class Not Found: "+name);
                             System.err.println("Won't create instance for it.");
                         }
