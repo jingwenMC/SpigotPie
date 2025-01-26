@@ -78,7 +78,7 @@ public class SpigotPieSpigot extends JavaPlugin {
 
                 @Override
                 public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
-                    System.out.println(args);
+                    System.out.println(Arrays.toString(args));
                     System.out.println(alias);
                     if(args.length<2) {
                         return super.tabComplete(sender, alias, args);
