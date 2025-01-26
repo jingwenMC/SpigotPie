@@ -1,4 +1,5 @@
 # SpigotPie - Spigot开发工具包
+[![](https://jitpack.io/v/jingwenMC/SpigotPie.svg)](https://jitpack.io/#jingwenMC/SpigotPie)
 
 ## 这是什么
 一个用于开发插件的工具包
