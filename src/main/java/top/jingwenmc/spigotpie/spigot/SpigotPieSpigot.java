@@ -84,7 +84,16 @@ public class SpigotPieSpigot extends JavaPlugin {
                 public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
                     CommandTreeNode node = commandManager.getNode(commandName, Arrays.copyOfRange(args, 0, args.length - 1));
                     if((!node.isRoot()) && node.autoTabCompleteSubs()) {
-                        return getAltStrings(args, node);
+                        ArrayList<String> inclusion = new ArrayList<>();
+                        for (String subCommand : node.getTreeMap().keySet()) {
+                            if(!StringUtil.startsWithIgnoreCase(subCommand, args[args.length - 1]))continue;
+                            CommandTreeNode node1 = node.getTreeMap().get(subCommand);
+                            if((node1.getPieCommand().permission() == null || node1.getPieCommand().permission().isEmpty())||sender.hasPermission(node1.getPieCommand().permission())) {
+                                inclusion.add(subCommand);
+                            }
+                        }
+                        inclusion.sort(String.CASE_INSENSITIVE_ORDER);
+                        return inclusion;
                     }
                     return super.tabComplete(sender, alias, args);
                 }
@@ -92,18 +101,6 @@ public class SpigotPieSpigot extends JavaPlugin {
         }
         pluginInstance.getLogger().log(Level.INFO,"[Pie]Command(s) registered.");
         pluginInstance.getLogger().log(Level.INFO,"[Pie]Total: "+commandManager.getAllCommands().length+" command(s)");
-    }
-
-    @NotNull
-    private static List<String> getAltStrings(String[] args, CommandTreeNode node) {
-        ArrayList<String> inclusion = new ArrayList<>();
-        for(String s : node.getTreeMap().keySet()) {
-            if(StringUtil.startsWithIgnoreCase(s, args[args.length - 1])) {
-                inclusion.add(s);
-            }
-        }
-        inclusion.sort(String.CASE_INSENSITIVE_ORDER);
-        return inclusion;
     }
 
     @Override
