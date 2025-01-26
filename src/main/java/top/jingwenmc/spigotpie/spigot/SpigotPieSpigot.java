@@ -78,7 +78,11 @@ public class SpigotPieSpigot extends JavaPlugin {
 
                 @Override
                 public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
-                    if(args.length<2)return super.tabComplete(sender, alias, args);
+                    System.out.println(args);
+                    System.out.println(alias);
+                    if(args.length<2) {
+                        return super.tabComplete(sender, alias, args);
+                    }
                     CommandTreeNode node = commandManager.getNode(commandName, Arrays.copyOfRange(args, 0, args.length - 1));
                     if((!node.isRoot()) && node.getPath().equalsIgnoreCase(args[args.length - 2])) {
                         return Arrays.asList(node.getTreeMap().keySet().toArray(new String[0]));
