@@ -84,6 +84,7 @@ public class SpigotPieSpigot extends JavaPlugin {
                         return super.tabComplete(sender, alias, args);
                     }
                     CommandTreeNode node = commandManager.getNode(commandName, Arrays.copyOfRange(args, 0, args.length - 1));
+                    System.out.println(node.getPath());
                     if((!node.isRoot()) && node.getPath().equalsIgnoreCase(args[args.length - 2])) {
                         return Arrays.asList(node.getTreeMap().keySet().toArray(new String[0]));
                     }
