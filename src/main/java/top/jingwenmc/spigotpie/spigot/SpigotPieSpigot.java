@@ -17,6 +17,8 @@ import top.jingwenmc.spigotpie.spigot.configuration.SpigotConfigurationAdapter;
 import top.jingwenmc.spigotpie.spigot.metrics.Metrics;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 public class SpigotPieSpigot extends JavaPlugin {
@@ -72,6 +74,15 @@ public class SpigotPieSpigot extends JavaPlugin {
                         commandManager.invoke(sender,commandName,args);
                     }
                     return true;
+                }
+
+                @Override
+                public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
+                    CommandTreeNode node = commandManager.getNode(commandName, Arrays.copyOfRange(args, 0, args.length - 1));
+                    if((!node.isRoot()) && node.getPath().equalsIgnoreCase(args[args.length - 1])) {
+                        return Arrays.asList(node.getTreeMap().keySet().toArray(new String[0]));
+                    }
+                    return super.tabComplete(sender, alias, args);
                 }
             });
         }
