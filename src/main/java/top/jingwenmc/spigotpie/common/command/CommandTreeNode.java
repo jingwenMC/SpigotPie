@@ -108,5 +108,10 @@ public class CommandTreeNode {
         consumer.accept(new CommandItem(sender,args));
     }
 
+    public boolean autoTabCompleteSubs() {
+        if(pieCommand.helpCommand()) return true;
+        return !(consumer instanceof GenericConsumer);
+    }
+
     public static final String ROOT_NODE_PATH = "::pie-root::";
 }

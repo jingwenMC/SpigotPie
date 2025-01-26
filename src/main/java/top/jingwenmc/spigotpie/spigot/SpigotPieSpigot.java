@@ -6,6 +6,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 import top.jingwenmc.spigotpie.PieDistroConfigurations;
 import top.jingwenmc.spigotpie.common.instance.ObjectManager;
 import top.jingwenmc.spigotpie.common.lang.PieLang;
@@ -17,7 +19,9 @@ import top.jingwenmc.spigotpie.spigot.configuration.SpigotConfigurationAdapter;
 import top.jingwenmc.spigotpie.spigot.metrics.Metrics;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -78,15 +82,9 @@ public class SpigotPieSpigot extends JavaPlugin {
 
                 @Override
                 public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
-                    System.out.println(Arrays.toString(args));
-                    System.out.println(alias);
-                    if(args.length<2) {
-                        return super.tabComplete(sender, alias, args);
-                    }
                     CommandTreeNode node = commandManager.getNode(commandName, Arrays.copyOfRange(args, 0, args.length - 1));
-                    System.out.println(node.getPath());
-                    if((!node.isRoot()) && node.getPath().equalsIgnoreCase(args[args.length - 2])) {
-                        return Arrays.asList(node.getTreeMap().keySet().toArray(new String[0]));
+                    if((!node.isRoot()) && node.autoTabCompleteSubs()) {
+                        return getAltStrings(args, node);
                     }
                     return super.tabComplete(sender, alias, args);
                 }
@@ -94,6 +92,18 @@ public class SpigotPieSpigot extends JavaPlugin {
         }
         pluginInstance.getLogger().log(Level.INFO,"[Pie]Command(s) registered.");
         pluginInstance.getLogger().log(Level.INFO,"[Pie]Total: "+commandManager.getAllCommands().length+" command(s)");
+    }
+
+    @NotNull
+    private static List<String> getAltStrings(String[] args, CommandTreeNode node) {
+        ArrayList<String> inclusion = new ArrayList<>();
+        for(String s : node.getTreeMap().keySet()) {
+            if(StringUtil.startsWithIgnoreCase(s, args[args.length - 1])) {
+                inclusion.add(s);
+            }
+        }
+        inclusion.sort(String.CASE_INSENSITIVE_ORDER);
+        return inclusion;
     }
 
     @Override
